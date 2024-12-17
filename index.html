@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/third-party/tailwindcss.min.js"></script>
+</head>
+
+<script type="module">
+    import van from '/third-party/van-1.5.2.min.js'
+    import { router } from './utils.js'
+
+    const { a, button, div, h1, p } = van.tags
+
+    van.add(document.body, router({
+        '#!/': Home,
+        '#!/skills': SkillList,
+        '#!/skills/:p': SkillDetails,
+        '#!/skills/:p/related': SkillRelated,
+    }))
+
+    function Home() {
+        return div(h1('Home'), a({ href: '#!/skills' }, 'skills'))
+    }
+
+    function SkillList() {
+        return div(h1('Skills'), a({ href: '#!/' }, 'home'))
+    }
+
+    function SkillDetails({ param }) {
+        return div(h1(`Skill #${param} Details`), a({ href: '#!/' }, 'home'))
+    }
+
+    function SkillRelated({ param }) {
+        return div(h1(`Skill #${param} Related`), a({ href: '#!/' }, 'home'))
+    }
+</script>
+
+<body>
+</body>
+
+</html>
+
+<!-- TODO
+* implement ui for: list, new, view, edit, delete
+* implement logic one page at a time
+-->
