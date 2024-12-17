@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/third-party/modern-normalize.min.css">
+    <style>
+        body {
+            margin: 1rem;
+        }
+
+        ul,
+        ol {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        input,
+        textarea {
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        ul:has(img) {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        img {
+            max-width: 500px;
+            max-height: 500px;
+        }
+
+        form img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+
+<script type="module">
+    import van from '/third-party/van-1.5.3.debug.js'
+    import db from './db.js'
+    import images from './images.js'
+    import { goTo, renderIf, router, transformValues } from './utils.js'
+
+    const { a, button, div, form, label, li, h1, h2, img, input, p, textarea, ul } = van.tags
+
+    const routes = transformValues({
+        home: '#!/',
+        skillList: '#!/skills',
+        skillCreate: '#!/skills/create',
+        skillDetails: '#!/skills/:param',
+        skillEdit: '#!/skills/:param/edit',
+    }, (path) => (param = null) => param ? path.replace(':param', param) : path)
+
+    van.add(document.body, router({
+        [routes.home()]: HomePage,
+        [routes.skillList()]: SkillListPage,
+        [routes.skillCreate()]: SkillCreatePage,
+        [routes.skillDetails()]: SkillDetailsPage,
+        [routes.skillEdit()]: SkillEditPage,
+    }))
+
+    function HomePage() {
+        return div(
+            h1('Home'),
+            a({ href: routes.skillList() }, 'skill list'),
+        )
+    }
+
+    function SkillListPage() {
+        const skills = van.state([])
+        db.findSkills().then(data => skills.val = data)
+
+        return div(
+            h1('skill list'),
+            () => ul(skills.val.map(SkillListItem)),
+            a({ href: routes.skillCreate() }, 'create skill'),
+        )
+    }
+
+    function SkillListItem({ id, name }) {
+        return li(
+            '- ', a({ href: routes.skillDetails(id) }, name),
+        )
+    }
+
+    function SkillCreatePage() {
+        return div(
+            a({ href: routes.skillList() }, '< skill list'),
+            h1('create skill'),
+            SkillForm({ onsubmit }),
+        )
+
+        async function onsubmit(skillData) {
+            skillData.pictures = await Promise.all(skillData.pictures.map(({ file }) => images.upload(file)))
+            await db.createSkill(skillData)
+            goTo(routes.skillList())
+        }
+    }
+
+    // TODO: cleanup state handling
+    // TODO: improve ugly bind logic
+    function SkillForm({ initialData = {}, ...props }) {
+        const formData = van.state({
+            name: '',
+            description: '',
+            pictures: [],
+            tags: '',
+            ...initialData.val,
+        })
+
+        return form({ onsubmit },
+            label('name'), input(bind(formData, 'name')),
+            label('description'), textarea(bind(formData, 'description')),
+            label('pictures'), () => Pictures(),
+            label('tags'), textarea(bind(formData, 'tags')),
+            button('save'),
+        )
+
+        // TODO: trim text field values
+        function onsubmit(event) {
+            event.preventDefault()
+            console.debug('[skill form] submit event', event)
+
+            return props.onsubmit(formData.val)
+        }
+
+        function Pictures() {
+            const replacing = van.state(null)
+            const fileInput = input({ type: 'file', onchange: loadImage })
+            return div(
+                fileInput,
+                ul(formData.val.pictures.map((pic) => li(img({ src: pic.url, onclick: () => replace(pic) })))),
+            )
+
+            // TODO: support selecting multiple images
+            async function loadImage(event) {
+                const file = event.target.files[0]
+                const url = await getLocalUrl(file)
+                const picture = { file, url, unsaved: true }
+                if (replacing.val) {
+                    formData.val = {
+                        ...formData.val,
+                        pictures: formData.val.pictures.map(p => p === replacing.val ? picture : p)
+                    }
+                    replacing.val = null
+                } else {
+                    formData.val = { ...formData.val, pictures: [...formData.val.pictures, picture] }
+                }
+            }
+
+            function replace(pic) {
+                replacing.val = pic
+                fileInput.click()
+            }
+        }
+    }
+
+    function bind(state, prop) {
+        return {
+            value: () => state.val[prop],
+            oninput: e => state.val = { ...state.oldVal, [prop]: e.target.value }
+        }
+    }
+
+    function getLocalUrl(file) {
+        return new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = e => res(e.target.result);
+            reader.onerror = e => rej(e);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    function SkillDetailsPage({ param }) {
+        const id = parseInt(param)
+        const skill = van.state(null)
+        db.getSkill(id).then(data => skill.val = data)
+
+        return div(
+            a({ href: routes.skillList() }, '< skill list'),
+            h1('skill details'),
+            a({ href: routes.skillEdit(id) }, 'edit'),
+            button({ onclick: confirmAndDelete }, 'delete'),
+            () => skill.val ? SkillDetails(skill) : p('loading skill data...'),
+        )
+
+        async function confirmAndDelete() {
+            if (confirm('are you sure?')) {
+                await db.deleteSkill(id)
+                goTo(routes.skillList())
+            }
+        }
+    }
+
+    function SkillDetails(skill) {
+        const { name, description, pictures, tags } = skill.val
+        return div(
+            h2(name),
+            p(description),
+            ul(pictures.map(({ url }) => li(img({ src: url })))),
+            p(tags),
+        )
+    }
+
+    function SkillEditPage({ param }) {
+        const id = parseInt(param)
+        const initialData = van.state(null)
+        db.getSkill(id).then(data => initialData.val = data)
+
+        return div(
+            a({ href: routes.skillList() }, '< skill list'),
+            h1('edit skill'),
+            () => initialData.val ? SkillForm({ initialData, onsubmit }) : p('loading skill data...'),
+        )
+
+        async function onsubmit(skillData) {
+            skillData.pictures = await Promise.all(skillData.pictures.map((p) => p.unsaved ? images.upload(p.file) : p))
+            await db.updateSkill(id, skillData)
+            goTo(routes.skillDetails(id))
+        }
+    }
+</script>
+
+<body>
+</body>
+
+</html>
+
+<!-- TODO
+* allow uploading pictures
+  - feat: delete image in skill form
+  - feat: add description to image in skill form
+  - feat: move image in skill form
+* display pictures
+* use DB
+-->

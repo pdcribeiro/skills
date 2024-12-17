@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/third-party/tailwindcss.min.js"></script>
+</head>
+
+<script type="module">
+    import van from '/third-party/van-1.5.2.min.js'
+
+    const { a, button, div, h1, p } = van.tags
+
+    const shouldRender = van.state(false)
+    van.add(document.body, renderIf(shouldRender, hello), button({ onclick: () => shouldRender.val = !shouldRender.val }, () => shouldRender.val ? 'hide' : 'show'))
+
+    function hello() {
+        runOnMount(() => console.log('mounted'))
+        return p('hello, world!')
+    }
+
+    // van.add(document.body, router({
+    //     '#/': home,
+    //     '#/counter': counter,
+    //     '#/toggle': toggle,
+    // }))
+
+    function router(routes) {
+        const getPath = (url) => new URL(url).hash || '#/'
+        const path = van.state(getPath(location.href))
+        window.addEventListener('hashchange', (e) => path.val = getPath(e.newURL))
+        return () => routes[path.val]()
+    }
+
+    function home() {
+        return div(h1('Welcome home'), a({ href: '#/counter' }, 'Counter'), a({ href: '#/toggle' }, 'Toggle'))
+    }
+
+    function counter() {
+        const count = van.state(0)
+        return div(p(() => `clicked ${count.val} times`), button({ onclick: () => count.val++ }, '+'), a({ href: '#/' }, 'Home'))
+    }
+
+    function toggle() {
+        const visible = van.state(true)
+        return div(() => visible.val ? counter() : div(), button({ onclick: () => visible.val = !visible.val }, 'toggle'))
+    }
+
+    // takes state boolean and component function
+    function renderIf(condition, component) {
+        return () => condition.val ? component() : div()
+    }
+
+    function runOnMount(callback) {
+        setTimeout(callback, 5)
+    }
+</script>
+
+<body>
+</body>
+
+</html>
+
+<!-- TODO
+* try MutationObserver to handle unmount events
+-->
