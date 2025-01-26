@@ -4,10 +4,11 @@ import { app } from './app.js';
 van.add(document.body, app);
 
 /* TODO
-- allow uploading pictures
+- feat: allow uploading pictures
   - feat: delete image in skill form
   - feat: add description to image in skill form
-  - feat: move image in skill form
-- display pictures
-- use DB
+  - feat: update image description in skill form
+  - feat: reorder images in skill form
+  - feat: allow selecting multiple images
+- feat: use DB
 */

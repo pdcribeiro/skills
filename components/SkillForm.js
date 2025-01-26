@@ -2,8 +2,6 @@ import van from '/third-party/van-1.5.3.debug.js';
 
 const { button, div, form, input, label, li, textarea, ul, img } = van.tags;
 
-// TODO: cleanup state handling
-// TODO: improve ugly bind logic
 export function SkillForm({ initialData = {}, ...props }) {
   const formData = van.state({
     name: '',
@@ -13,20 +11,14 @@ export function SkillForm({ initialData = {}, ...props }) {
     ...initialData.val,
   });
 
-  return form(
-    { onsubmit },
-    label('name'),
-    input(bind(formData, 'name')),
-    label('description'),
-    textarea(bind(formData, 'description')),
-    label('pictures'),
-    () => Pictures(),
-    label('tags'),
-    textarea(bind(formData, 'tags')),
+  return form({ onsubmit },
+    label('name'), input(bind(formData, 'name')),
+    label('description'), textarea(bind(formData, 'description')),
+    label('pictures'), () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
+    label('tags'), textarea(bind(formData, 'tags')),
     button('save')
   );
 
-  // TODO: trim text field values
   function onsubmit(event) {
     event.preventDefault();
     console.debug('[skill form] submit event', event);
@@ -34,43 +26,8 @@ export function SkillForm({ initialData = {}, ...props }) {
     return props.onsubmit(formData.val);
   }
 
-  function Pictures() {
-    const replacing = van.state(null);
-    const fileInput = input({ type: 'file', onchange: loadImage });
-    return div(
-      fileInput,
-      ul(
-        formData.val.pictures.map((pic) =>
-          li(img({ src: pic.url, onclick: () => replace(pic) }))
-        )
-      )
-    );
-
-    // TODO: support selecting multiple images
-    async function loadImage(event) {
-      const file = event.target.files[0];
-      const url = await getLocalUrl(file);
-      const picture = { file, url, unsaved: true };
-      if (replacing.val) {
-        formData.val = {
-          ...formData.val,
-          pictures: formData.val.pictures.map((p) =>
-            p === replacing.val ? picture : p
-          ),
-        };
-        replacing.val = null;
-      } else {
-        formData.val = {
-          ...formData.val,
-          pictures: [...formData.val.pictures, picture],
-        };
-      }
-    }
-
-    function replace(pic) {
-      replacing.val = pic;
-      fileInput.click();
-    }
+  function updatePictures(pictures) {
+    formData.val = { ...formData.val, pictures };
   }
 }
 
@@ -79,6 +36,32 @@ function bind(state, prop) {
     value: () => state.val[prop],
     oninput: (e) => (state.val = { ...state.oldVal, [prop]: e.target.value }),
   };
+}
+
+function Pictures({ pictures, update }) {
+  const replacing = van.state(null);
+  const fileInput = input({ type: 'file', onchange: loadImage });
+  return div(
+    fileInput,
+    ul(pictures.map((pic) => li(img({ src: pic.url, onclick: () => replace(pic) }))))
+  );
+
+  async function loadImage(event) {
+    const file = event.target.files[0];
+    const url = await getLocalUrl(file);
+    const picture = { file, url, unsaved: true };
+    if (replacing.val) {
+      update(pictures.map((p) => (p === replacing.val ? picture : p)))
+      replacing.val = null;
+    } else {
+      update([...pictures, picture])
+    }
+  }
+
+  function replace(pic) {
+    replacing.val = pic;
+    fileInput.click();
+  }
 }
 
 function getLocalUrl(file) {
