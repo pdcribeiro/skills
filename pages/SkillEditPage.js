@@ -23,7 +23,14 @@ export function SkillEditPage({ param }) {
 
   async function onsubmit(skillData) {
     skillData.pictures = await Promise.all(
-      skillData.pictures.map((p) => (p.unsaved ? images.upload(p.file) : p))
+      skillData.pictures.map(async (pic) => {
+        if (pic.unsaved) {
+          const { id, url } = await images.upload(pic.file);
+          return { id, url, description: pic.description };
+        } else {
+          return pic;
+        }
+      })
     );
     await db.updateSkill(id, skillData);
     goTo(routes.skillDetails(id));

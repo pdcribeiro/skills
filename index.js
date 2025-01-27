@@ -5,9 +5,6 @@ van.add(document.body, app);
 
 /* TODO
 - feat: allow uploading pictures
-  - feat: delete image in skill form
-  - feat: add description to image in skill form
-  - feat: update image description in skill form
   - feat: reorder images in skill form
   - feat: allow selecting multiple images
 - feat: use DB

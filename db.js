@@ -48,6 +48,14 @@ const db = {
 
 // await db.createSkill({ name: 'hip key', description: 'just do it' });
 
+// migrateDb(skills => skills.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
+
+window.migrateDb = function (callback) {
+  const skills = get();
+  const migrated = callback(skills);
+  set(migrated);
+}
+
 function get() {
   return getJson(SKILLS_KEY) ?? [];
 }

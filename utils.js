@@ -44,3 +44,7 @@ export function transformValues(object, callback) {
   const transformed = Object.entries(object).map(([k, v]) => [k, callback(v)]);
   return Object.fromEntries(transformed);
 }
+
+// export function range(n) {
+//   return [...Array(n).keys()];
+// }

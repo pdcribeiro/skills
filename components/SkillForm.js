@@ -1,6 +1,6 @@
 import van from '/third-party/van-1.5.3.debug.js';
 
-const { button, div, form, input, label, li, textarea, ul, img } = van.tags;
+const { button, div, input, label, textarea, img } = van.tags;
 
 export function SkillForm({ initialData = {}, ...props }) {
   const formData = van.state({
@@ -11,19 +11,25 @@ export function SkillForm({ initialData = {}, ...props }) {
     ...initialData.val,
   });
 
-  return form({ onsubmit },
+  return div(
     label('name'), input(bind(formData, 'name')),
-    label('description'), textarea(bind(formData, 'description')),
-    label('pictures'), () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
+    label('description'), textarea({ rows: 12, ...bind(formData, 'description') }),
+    label('pictures'), input({ type: 'file', onchange: loadImage }),
+    () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
     label('tags'), textarea(bind(formData, 'tags')),
-    button('save')
+    button({ onclick: submit }, 'save')
   );
 
-  function onsubmit(event) {
-    event.preventDefault();
+  function submit(event) {
     console.debug('[skill form] submit event', event);
+    props.onsubmit(formData.val);
+  }
 
-    return props.onsubmit(formData.val);
+  async function loadImage(event) {
+    const file = event.target.files[0];
+    const url = await getLocalUrl(file);
+    const picture = { file, url, description: '', unsaved: true };
+    updatePictures([...formData.val.pictures, picture]);
   }
 
   function updatePictures(pictures) {
@@ -31,36 +37,50 @@ export function SkillForm({ initialData = {}, ...props }) {
   }
 }
 
-function bind(state, prop) {
-  return {
-    value: () => state.val[prop],
-    oninput: (e) => (state.val = { ...state.oldVal, [prop]: e.target.value }),
-  };
+function Pictures({ pictures, update }) {
+  const editing = van.state(null);
+  return div({ class: 'mb-4' },
+    div({ class: 'flex flex-wrap gap-4' },
+      pictures.map((pic) => img({ src: pic.url, class: 'small', onclick: () => editing.val = pic })),
+    ),
+    () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
+  );
+
+  function updatePicture(picture) {
+    update(pictures.map((p) => (p === editing.val ? picture : p)).filter((p) => !p.deleted));
+  }
 }
 
-function Pictures({ pictures, update }) {
-  const replacing = van.state(null);
-  const fileInput = input({ type: 'file', onchange: loadImage });
-  return div(
-    fileInput,
-    ul(pictures.map((pic) => li(img({ src: pic.url, onclick: () => replace(pic) }))))
+function EditModal({ update, close, ...props }) {
+  const picture = van.state(props.picture);
+  const fileInput = input({ type: 'file', onchange: loadImage })
+  return div({ class: 'modal', onclick: (e) => e.target === e.currentTarget && close() },
+    div(
+      () => img({ src: picture.val.url }),
+      fileInput,
+      textarea(bind(picture, 'description')),
+      button({ onclick: save }, 'save'),
+      button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+    )
   );
 
   async function loadImage(event) {
     const file = event.target.files[0];
     const url = await getLocalUrl(file);
-    const picture = { file, url, unsaved: true };
-    if (replacing.val) {
-      update(pictures.map((p) => (p === replacing.val ? picture : p)))
-      replacing.val = null;
-    } else {
-      update([...pictures, picture])
-    }
+    const { description } = picture.val
+    picture.val = { file, url, description, unsaved: true };
   }
 
-  function replace(pic) {
-    replacing.val = pic;
-    fileInput.click();
+  async function save() {
+    update(picture.val);
+    close();
+  }
+
+  async function confirmAndDelete() {
+    if (confirm('are you sure?')) {
+      update({ ...props.picture, deleted: true });
+      close()
+    }
   }
 }
 
@@ -71,4 +91,11 @@ function getLocalUrl(file) {
     reader.onerror = (e) => rej(e);
     reader.readAsDataURL(file);
   });
+}
+
+function bind(state, prop = null) {
+  return {
+    value: () => prop ? state.val[prop] : state.val,
+    oninput: (e) => (state.val = prop ? { ...state.oldVal, [prop]: e.target.value } : e.target.value),
+  };
 }

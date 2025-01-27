@@ -16,7 +16,10 @@ export function SkillCreatePage() {
 
   async function onsubmit(skillData) {
     skillData.pictures = await Promise.all(
-      skillData.pictures.map(({ file }) => images.upload(file))
+      skillData.pictures.map(async ({ file, description }) => {
+        const { id, url } = await images.upload(file);
+        return { id, url, description };
+      })
     );
     await db.createSkill(skillData);
     goTo(routes.skillList());

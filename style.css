@@ -1,9 +1,14 @@
 /* Generic */
 
+html {
+    font-size: calc(15px + 0.390625vw);
+}
+
 body {
     padding: 1rem 2rem;
     margin: auto;
     max-width: 1200px;
+    min-height: 100vh;
     border-left: 1px solid lightgrey;
     border-right: 1px solid lightgrey;
 }
@@ -14,26 +19,20 @@ ol {
     padding: 0;
 }
 
-input,
-textarea {
-    display: block;
-    margin-bottom: 1rem;
+label:has(+ input), label:has(+ textarea) {
+    display: inline-block;
+    margin-bottom: 0.5rem;
 }
 
-ul:has(img) {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+input,
+textarea {
+    margin-bottom: 1rem;
+    width: 100%;
 }
 
 img {
-    max-width: 500px;
-    max-height: 500px;
-}
-
-form img {
-    max-width: 200px;
-    max-height: 200px;
+    max-width: min(100%, 500px);
+    max-height: min(100%, 500px);
 }
 
 .button,
@@ -57,16 +56,60 @@ button {
 
 /* Specific */
 
+img.small {
+    object-fit: contain;
+    padding: 0.5rem;
+    width: 12rem;
+    height: 12rem;
+    border: 1px solid lightgrey;
+}
+
+.modal {
+    display: flex;
+    /* overflow: auto; */
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: #0008;
+}
+
+.modal > div {
+    display: inline-block;
+    padding: 1.5rem;
+    background: white;
+}
+
 /* Utilities */
 
+.block {
+    display: block;
+}
 .flex {
     display: flex;
 }
 
+.flex-wrap {
+    flex-wrap: wrap;
+}
+.gap-4 {
+    gap: 1rem;
+}
 .items-center {
     align-items: center;
 }
 
+.mb-4 {
+    margin-bottom: 1rem;
+}
 .ml-4 {
     margin-left: 1rem;
 }

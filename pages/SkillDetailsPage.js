@@ -3,7 +3,7 @@ import { routes } from '../app.js';
 import db from '../db.js';
 import { goTo } from '../utils.js';
 
-const { a, button, div, h1, h2, li, p, ul, img } = van.tags;
+const { a, button, div, h1, h2, p, img } = van.tags;
 
 export function SkillDetailsPage({ param }) {
   const id = parseInt(param);
@@ -39,7 +39,16 @@ function SkillDetails({ skill }) {
   return div(
     h2(name),
     p(description),
-    ul(pictures.map(({ url }) => li(img({ src: url })))),
+    Pictures({ pictures }),
     p(tags)
   );
+}
+
+function Pictures({ pictures }) {
+  return div({ class: 'flex flex-wrap gap-4' },
+    pictures.map((pic) => div(
+      img({ src: pic.url }),
+      p(pic.description),
+    ))
+  )
 }
