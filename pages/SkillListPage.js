@@ -11,7 +11,7 @@ export function SkillListPage() {
   return div(
     h1('skill list'),
     () => ul(skills.val.map(SkillListItem)),
-    a({ href: routes.skillCreate() }, 'create skill')
+    a({ href: routes.skillCreate(), class: 'button' }, 'create skill')
   );
 }
 

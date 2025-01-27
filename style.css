@@ -1,5 +1,11 @@
+/* Generic */
+
 body {
-    margin: 1rem;
+    padding: 1rem 2rem;
+    margin: auto;
+    max-width: 1200px;
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
 }
 
 ul,
@@ -28,4 +34,42 @@ img {
 form img {
     max-width: 200px;
     max-height: 200px;
+}
+
+.button,
+button {
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    background-color: transparent;
+    color: black;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    /* text-align: center; */
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    cursor: pointer;
+}
+
+.button.small {
+    padding: 0.25rem 0.5rem;
+}
+
+/* Specific */
+
+/* Utilities */
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.ml-4 {
+    margin-left: 1rem;
+}
+.ml-auto {
+    margin-left: auto;
 }

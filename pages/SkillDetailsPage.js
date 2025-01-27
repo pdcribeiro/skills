@@ -11,12 +11,20 @@ export function SkillDetailsPage({ param }) {
   db.getSkill(id).then((data) => (skill.val = data));
 
   return div(
-    a({ href: routes.skillList() }, '< skill list'),
-    h1('skill details'),
-    a({ href: routes.skillEdit(id) }, 'edit'),
-    button({ onclick: confirmAndDelete }, 'delete'),
-    () => (skill.val ? SkillDetails(skill) : p('loading skill data...'))
+    a({ href: routes.skillList(), class: 'button' }, '< skill list'),
+    div({ class: 'flex items-center' },
+      h1('skill details'),
+      Actions({ id }),
+    ),
+    () => (skill.val ? SkillDetails({ skill }) : p('loading skill data...'))
   );
+}
+
+function Actions({ id }) {
+  return div({ class: 'ml-auto' },
+    a({ href: routes.skillEdit(id), class: 'button small' }, 'edit'),
+    button({ onclick: confirmAndDelete, class: 'button small ml-4' }, 'delete'),
+  )
 
   async function confirmAndDelete() {
     if (confirm('are you sure?')) {
@@ -26,7 +34,7 @@ export function SkillDetailsPage({ param }) {
   }
 }
 
-function SkillDetails(skill) {
+function SkillDetails({ skill }) {
   const { name, description, pictures, tags } = skill.val;
   return div(
     h2(name),

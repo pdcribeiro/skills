@@ -9,7 +9,7 @@ const { a, div, h1 } = van.tags;
 
 export function SkillCreatePage() {
   return div(
-    a({ href: routes.skillList() }, '< skill list'),
+    a({ href: routes.skillList(), class: 'button' }, '< skill list'),
     h1('create skill'),
     SkillForm({ onsubmit })
   );
