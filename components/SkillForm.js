@@ -20,11 +20,6 @@ export function SkillForm({ initialData = {}, ...props }) {
     button({ onclick: submit }, 'save')
   );
 
-  function submit(event) {
-    console.debug('[skill form] submit event', event);
-    props.onsubmit(formData.val);
-  }
-
   async function loadImage(event) {
     const file = event.target.files[0];
     const url = await getLocalUrl(file);
@@ -34,6 +29,11 @@ export function SkillForm({ initialData = {}, ...props }) {
 
   function updatePictures(pictures) {
     formData.val = { ...formData.val, pictures };
+  }
+
+  function submit(event) {
+    console.debug('[skill form] submit event', event);
+    props.onsubmit(formData.val);
   }
 }
 
@@ -53,11 +53,10 @@ function Pictures({ pictures, update }) {
 
 function EditModal({ update, close, ...props }) {
   const picture = van.state(props.picture);
-  const fileInput = input({ type: 'file', onchange: loadImage })
   return div({ class: 'modal', onclick: (e) => e.target === e.currentTarget && close() },
     div(
       () => img({ src: picture.val.url }),
-      fileInput,
+      input({ type: 'file', onchange: loadImage }),
       textarea(bind(picture, 'description')),
       button({ onclick: save }, 'save'),
       button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),

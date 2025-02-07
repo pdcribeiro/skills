@@ -22,7 +22,7 @@ export function SkillEditPage({ param }) {
   );
 
   async function onsubmit(skillData) {
-    skillData.pictures = await Promise.all(
+    const pictures = await Promise.all(
       skillData.pictures.map(async (pic) => {
         if (pic.unsaved) {
           const { id, url } = await images.upload(pic.file);
@@ -32,7 +32,7 @@ export function SkillEditPage({ param }) {
         }
       })
     );
-    await db.updateSkill(id, skillData);
+    await db.updateSkill(id, { ...skillData, pictures });
     goTo(routes.skillDetails(id));
   }
 }

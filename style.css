@@ -1,8 +1,12 @@
-/* Generic */
+/* Base */
 
 :root {
-    --bg-color: white;
-    --color: black;
+    --color-light: white;
+    --color-dark: black;
+    --color-neutral: #888;
+
+    --bg-color: var(--color-light);
+    --color: var(--color-dark);
 }
 
 html {
@@ -16,8 +20,8 @@ body {
     margin: auto;
     max-width: 1200px;
     min-height: 100vh;
-    border-left: 1px solid var(--color);
-    border-right: 1px solid var(--color);
+    border-left: 1px solid var(--color-neutral);
+    border-right: 1px solid var(--color-neutral);
 }
 
 a {
@@ -31,7 +35,7 @@ ol {
     /* padding: 0; */
 }
 
-label:has(+ input), label:has(+ textarea) {
+label:has(+ input, + textarea) {
     display: inline-block;
     margin-bottom: 0.5rem;
 }
@@ -42,13 +46,28 @@ textarea {
     width: 100%;
 }
 
+input:not([type="file"]),
+textarea {
+    color: inherit;
+    background-color: transparent;
+    border: 1px solid var(--color-neutral);
+}
+
 img {
     max-width: min(100%, 500px);
     max-height: min(100%, 500px);
 }
 
-.button,
-button {
+img.small {
+    object-fit: contain;
+    padding: 0.5rem;
+    width: 12rem;
+    height: 12rem;
+    border: 1px solid var(--color-neutral);
+}
+
+button,
+.button {
     padding: 0.5rem 1rem;
     margin: 1rem 0;
     background-color: transparent;
@@ -61,23 +80,18 @@ button {
     cursor: pointer;
 }
 
+button.small,
 .button.small {
     padding: 0.25rem 0.5rem;
     margin: 0.5rem 0;
 }
 
-/* Specific */
-
-img.small {
-    object-fit: contain;
-    padding: 0.5rem;
-    width: 12rem;
-    height: 12rem;
-    border: 1px solid lightgrey;
-}
+/* Components */
 
 .modal {
     display: flex;
+    justify-content: center;
+    align-items: center;
     /* overflow: auto; */
 
     position: fixed;
@@ -85,19 +99,16 @@ img.small {
     top: 0;
     z-index: 1;
 
-    justify-content: center;
-    align-items: center;
-
     width: 100%;
     height: 100%;
 
-    background-color: #0008;
+    background-color: color-mix(in srgb, var(--color) 50%, transparent);
 }
 
 .modal > div {
     display: inline-block;
     padding: 1.5rem;
-    background: white;
+    background-color: var(--bg-color);
 }
 
 /* Utilities */
