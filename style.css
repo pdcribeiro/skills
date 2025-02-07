@@ -7,6 +7,8 @@
 
     --bg-color: var(--color-light);
     --color: var(--color-dark);
+
+    --max-image-size: 500px;
 }
 
 html {
@@ -42,6 +44,7 @@ label:has(+ input, + textarea) {
 
 input,
 textarea {
+    display: block;
     margin-bottom: 1rem;
     width: 100%;
 }
@@ -54,12 +57,14 @@ textarea {
 }
 
 img {
-    max-width: min(100%, 500px);
-    max-height: min(100%, 500px);
+    object-fit: scale-down;
+    width: 100%;
+    height: 100%;
+    max-width: var(--max-image-size);
+    max-height: var(--max-image-size);
 }
 
 img.small {
-    object-fit: contain;
     padding: 0.5rem;
     width: 12rem;
     height: 12rem;
@@ -106,7 +111,6 @@ button.small,
 }
 
 .modal > div {
-    display: inline-block;
     padding: 1.5rem;
     background-color: var(--bg-color);
 }

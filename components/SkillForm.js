@@ -61,7 +61,7 @@ function EditModal({ update, close, ...props }) {
       button({ onclick: save }, 'save'),
       button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
       button({ class: 'ml-4', onclick: close }, 'cancel'),
-    )
+    ),
   );
 
   async function loadImage(event) {
