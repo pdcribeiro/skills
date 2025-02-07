@@ -13,7 +13,7 @@ export function SkillEditPage({ param }) {
   db.getSkill(id).then((data) => (initialData.val = data));
 
   return div(
-    a({ href: routes.skillDetails(id), class: 'button' }, '< skill details'),
+    a({ href: routes.skillDetails(id), class: 'button small' }, '< skill details'),
     h1('edit skill'),
     () =>
       initialData.val
