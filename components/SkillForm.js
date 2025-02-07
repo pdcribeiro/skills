@@ -8,7 +8,7 @@ export function SkillForm({ initialData = {}, ...props }) {
     description: '',
     pictures: [],
     tags: '',
-    ...initialData.val,
+    ...initialData,
   });
 
   return div(

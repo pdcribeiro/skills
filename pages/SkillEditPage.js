@@ -17,7 +17,7 @@ export function SkillEditPage({ param }) {
     h1('edit skill'),
     () =>
       initialData.val
-        ? SkillForm({ initialData, onsubmit })
+        ? SkillForm({ initialData: initialData.val, onsubmit })
         : p('loading skill data...')
   );
 
