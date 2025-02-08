@@ -38,10 +38,10 @@ function SkillDetails({ name, description, pictures, tags }) {
 }
 
 function Pictures({ pictures }) {
-  return div({ class: 'flex flex-wrap gap-4' },
-    pictures.map((pic) => div(
-      img({ src: pic.url }),
-      p(pic.description),
+  return div({ class: 'overflow-x-auto text-nowrap snap-x' },
+    pictures.map((pic) => div({ class: 'inline-block w-full snap-center' },
+      img({ src: pic.url, class: 'block mx-auto h-screen/2' }),
+      p({ class: 'overflow-y-auto h-14 text-center whitespace-pre-wrap' }, pic.description),
     ))
   )
 }

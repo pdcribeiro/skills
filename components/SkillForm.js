@@ -56,9 +56,9 @@ function EditModal({ update, close, ...props }) {
   const picture = van.state(props.picture);
   return div({ class: 'modal', onclick: (e) => e.target === e.currentTarget && close() },
     div(
-      () => img({ src: picture.val.url }),
+      () => img({ src: picture.val.url, class: 'max-h-screen/2' }),
       input({ type: 'file', onchange: loadImage }),
-      textarea(bind(picture, 'description')),
+      textarea({ rows: 5, ...bind(picture, 'description') }),
       button({ onclick: save }, 'save'),
       button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
       button({ class: 'ml-4', onclick: close }, 'cancel'),
