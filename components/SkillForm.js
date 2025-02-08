@@ -1,4 +1,5 @@
 import van from '/third-party/van-1.5.3.debug.js';
+import { bind } from '../utils.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
 
@@ -91,11 +92,4 @@ function getLocalUrl(file) {
     reader.onerror = (e) => rej(e);
     reader.readAsDataURL(file);
   });
-}
-
-function bind(state, prop = null) {
-  return {
-    value: () => prop ? state.val[prop] : state.val,
-    oninput: (e) => (state.val = prop ? { ...state.oldVal, [prop]: e.target.value } : e.target.value),
-  };
 }

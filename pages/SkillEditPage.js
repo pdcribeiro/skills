@@ -9,15 +9,15 @@ const { a, div, h1, p } = van.tags;
 
 export function SkillEditPage({ param }) {
   const id = parseInt(param);
-  const initialData = van.state(null);
-  db.getSkill(id).then((data) => (initialData.val = data));
+  const skill = van.state(null);
+  db.getSkill(id).then((data) => (skill.val = data));
 
   return div(
     a({ href: routes.skillDetails(id), class: 'button small' }, '< skill details'),
     h1('edit skill'),
     () =>
-      initialData.val
-        ? SkillForm({ initialData: initialData.val, onsubmit })
+      skill.val
+        ? SkillForm({ initialData: skill.val, onsubmit })
         : p('loading skill data...')
   );
 

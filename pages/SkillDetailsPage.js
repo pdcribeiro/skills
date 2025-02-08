@@ -17,7 +17,7 @@ export function SkillDetailsPage({ param }) {
       a({ href: routes.skillEdit(id), class: 'button small ml-auto' }, 'edit'),
       button({ onclick: confirmAndDelete, class: 'button small ml-4' }, 'delete'),
     ),
-    () => (skill.val ? SkillDetails({ skill }) : p('loading skill data...'))
+    () => (skill.val ? SkillDetails(skill.val) : p('loading skill data...'))
   );
 
   async function confirmAndDelete() {
@@ -28,8 +28,7 @@ export function SkillDetailsPage({ param }) {
   }
 }
 
-function SkillDetails({ skill }) {
-  const { name, description, pictures, tags } = skill.val;
+function SkillDetails({ name, description, pictures, tags }) {
   return div(
     h2(name),
     p(description),

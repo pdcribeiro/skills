@@ -45,6 +45,16 @@ export function transformValues(object, callback) {
   return Object.fromEntries(transformed);
 }
 
+export function bind(state, prop = null) {
+  return prop ? {
+    value: () => state.val[prop],
+    oninput: (e) => state.val = { ...state.val, [prop]: e.target.value },
+  } : {
+    value: state,
+    oninput: (e) => state.val = e.target.value,
+  };
+}
+
 // export function range(n) {
 //   return [...Array(n).keys()];
 // }
