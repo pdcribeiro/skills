@@ -5,55 +5,45 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <script src="/third-party/tailwindcss.min.js"></script> -->
+    <style>
+        .container {
+            display: grid;
+            /* grid: repeat(2, 60px) / auto-flow 80px; */
+            grid-template-rows: repeat(3, 1fr);
+            grid-gap: 1rem;
+            overflow-y: auto;
+            height: 100;
+        }
+        .container > div {
+            display: flex;
+            background-color: #8ca0ff;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
 </head>
 
+<body>
+    <div class="container">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</body>
+
 <script type="module">
-    import van from '/third-party/van-1.5.2.min.js'
+    import van from '/third-party/van-1.5.3.debug.js'
 
     const { a, button, div, h1, p } = van.tags
 
-    const shouldRender = van.state(false)
-    van.add(document.body, renderIf(shouldRender, hello), button({ onclick: () => shouldRender.val = !shouldRender.val }, () => shouldRender.val ? 'hide' : 'show'))
-
-    function hello() {
-        runOnMount(() => console.log('mounted'))
-        return p('hello, world!')
-    }
-
-    function home() {
-        return div(h1('Welcome home'), a({ href: '#/counter' }, 'Counter'), a({ href: '#/toggle' }, 'Toggle'))
-    }
-
-    function counter() {
-        const count = van.state(0)
-        return div(p(() => `clicked ${count.val} times`), button({ onclick: () => count.val++ }, '+'), a({ href: '#/' }, 'Home'))
-    }
-
-    function toggle() {
-        const visible = van.state(true)
-        return div(() => visible.val ? counter() : div(), button({ onclick: () => visible.val = !visible.val }, 'toggle'))
-    }
-
-    // takes state boolean and component function
-    function renderIf(condition, component) {
-        return () => condition.val ? component() : div()
-    }
-
-    function runOnMount(callback) {
-        setTimeout(callback, 5)
-    }
+    van.add(document.body, p('hello, world!'))
 </script>
-
-<body>
-    <div style="display: flex; place-content: center; place-items: center; height: 100vh; background: red;">
-        <div style="display: inline-block; background: green; width: 100px">
-            <img src="https://res.cloudinary.com/skills/image/upload/v1737993164/b5jtorbdx8ozkctejqti.jpg" style="width: 100%; max-width: 500px;" />
-        </div>
-    </div>
-</body>
 
 </html>
 
 <!-- TODO
-* try MutationObserver to handle unmount events
+* try web components or MutationObserver to handle unmount events
 -->

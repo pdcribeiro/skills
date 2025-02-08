@@ -1,13 +1,5 @@
 import van from '/third-party/van-1.5.3.debug.js';
 
-export function runOnMount(callback) {
-  setTimeout(callback, 5);
-}
-// takes state boolean and component function
-export function renderIf(condition, component) {
-  return () => (condition.val ? component() : div());
-}
-
 // TODO: try to simplify (see: https://vanjs.org/demo#code-browser)
 export function router(routes) {
   const parsedRoutes = parsePaths(routes);

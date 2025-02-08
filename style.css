@@ -77,10 +77,8 @@ button,
 /* Custom */
 
 img.small {
-    padding: 0.5rem;
     width: 12rem;
     height: 12rem;
-    border: 1px solid var(--color-neutral);
 }
 
 button.small,
@@ -89,10 +87,9 @@ button.small,
     margin: 0.5rem 0;
 }
 
-/* .border {
+.border {
     border: 1px solid var(--color-neutral);
-    border-radius: 0.25rem;
-} */
+}
 
 /* Components */
 
@@ -115,6 +112,7 @@ button.small,
 
 /* Utilities */
 
+/* display */
 .block {
     display: block;
 }
@@ -127,7 +125,6 @@ button.small,
 .inline-flex {
     display: inline-flex;
 }
-
 .overflow-x-auto {
     overflow-x: auto;
 }
@@ -135,6 +132,7 @@ button.small,
     overflow-y: auto;
 }
 
+/* flexbox & grid */
 .flex-col {
     flex-direction: column;
 }
@@ -151,6 +149,10 @@ button.small,
     align-items: center;
 }
 
+/* spacing */
+.p-2 {
+    padding: 0.5rem !important;
+}
 .mb-4 {
     margin-bottom: 1rem !important;
 }
@@ -168,19 +170,31 @@ button.small,
     margin-left: auto !important;
 }
 
+/* sizing */
 .w-full {
     width: 100%;
 }
 .h-14 {
     height: 3.5rem;
 }
+.h-152 {
+    height: 38rem;
+}
 .h-screen\/2 {
     height: 50vh;
+}
+.min-h-48 {
+    min-height: 12rem;
 }
 .max-h-screen\/2 {
     max-height: 50vh;
 }
+.size-48 {
+    width: 12rem;
+    height: 12rem;
+}
 
+/* typography */
 .text-center {
     text-align: center;
 }
@@ -191,6 +205,7 @@ button.small,
     white-space: pre-wrap;
 }
 
+/* interactivity */
 .snap-center {
     scroll-snap-align: center;
 }

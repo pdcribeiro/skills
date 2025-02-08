@@ -41,8 +41,8 @@ export function SkillForm({ initialData = {}, ...props }) {
 function Pictures({ pictures, update }) {
   const editing = van.state(null);
   return div({ class: 'mb-4' },
-    div({ class: 'flex flex-wrap gap-4' },
-      pictures.map((pic) => img({ src: pic.url, class: 'small', onclick: () => editing.val = pic })),
+    div({ class: 'flex overflow-y-auto flex-col gap-4 items-center h-152' },
+      pictures.map((pic) => img({ src: pic.url, class: 'p-2 min-h-48 size-48 border', onclick: () => editing.val = pic })),
     ),
     () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
   );
