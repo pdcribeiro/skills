@@ -27,10 +27,26 @@ export default function SkillDetailsPage({ param: id }) {
 function SkillDetails({ name, description, pictures, tags }) {
   return div(
     h1(name),
-    p({ class: 'whitespace-pre-wrap' }, description),
+    Description({ description }),
     Pictures({ pictures }),
     p(tags)
   );
+}
+
+function Description({ description }) {
+  return description.split('\n').map((line) => {
+    if (!line.trim().length) {
+      return null; // ignore empty lines
+    }
+    const headingMatch = line.match(/^(#+) \w/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const heading = van.tags[`h${level}`]
+      const text = line.slice(level + 1)
+      return heading(text);
+    }
+    return p({ class: 'whitespace-pre-wrap' }, line);
+  })
 }
 
 function Pictures({ pictures }) {
