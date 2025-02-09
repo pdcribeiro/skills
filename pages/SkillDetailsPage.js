@@ -34,19 +34,21 @@ function SkillDetails({ name, description, pictures, tags }) {
 }
 
 function Description({ description }) {
-  return description.split('\n').map((line) => {
-    if (!line.trim().length) {
-      return null; // ignore empty lines
-    }
-    const headingMatch = line.match(/^(#+) \w/);
-    if (headingMatch) {
-      const level = headingMatch[1].length;
-      const heading = van.tags[`h${level}`]
-      const text = line.slice(level + 1)
-      return heading(text);
-    }
-    return p({ class: 'whitespace-pre-wrap' }, line);
-  })
+  return div({ class: 'mb-8' },
+    description.split('\n').map((line) => {
+      if (!line.trim().length) {
+        return null; // ignore empty lines
+      }
+      const headingMatch = line.match(/^(#+) \w/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const heading = van.tags[`h${level}`]
+        const text = line.slice(level + 1)
+        return heading(text);
+      }
+      return p({ class: 'whitespace-pre-wrap' }, line);
+    })
+  )
 }
 
 function Pictures({ pictures }) {
