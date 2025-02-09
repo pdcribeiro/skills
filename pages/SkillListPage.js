@@ -5,7 +5,7 @@ import db from '../db.js';
 const { a, div, h1, ul, li } = van.tags;
 
 export function SkillListPage() {
-  const skills = van.state([]);
+  const skills = van.state(null);
   db.findSkills().then((data) => (skills.val = data));
 
   return div(
@@ -13,7 +13,7 @@ export function SkillListPage() {
       h1('skill list'),
       a({ href: routes.skillCreate(), class: 'button ml-auto' }, 'create'),
     ),
-    () => ul(skills.val.map(SkillListItem)),
+    () => skills.val ? ul(skills.val.map(SkillListItem)) : div('loading skills...'),
   );
 }
 
