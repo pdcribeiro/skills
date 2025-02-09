@@ -1,10 +1,10 @@
 import van from '../third-party/van.js';
 import Modal from '../components/Modal.js';
-import { bind } from '../utils.js';
+import { bind, confirmAnd } from '../utils.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
 
-export default function SkillForm({ initialData = {}, ...props }) {
+export default function SkillForm({ initialData = {}, cancel, ...props }) {
   const formData = van.state({
     name: '',
     description: '',
@@ -19,7 +19,8 @@ export default function SkillForm({ initialData = {}, ...props }) {
     label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
     () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
     label('tags'), textarea(bind(formData, 'tags')),
-    button({ onclick: submit }, 'save')
+    button({ onclick: submit }, 'save'),
+    button({ class: 'ml-4', onclick: cancel }, 'cancel'),
   );
 
   async function loadImages(event) {
@@ -37,7 +38,7 @@ export default function SkillForm({ initialData = {}, ...props }) {
 
   function submit(event) {
     console.debug('[skill form] submit event', event);
-    props.onsubmit(formData.val);
+    props.submit(formData.val);
   }
 }
 
@@ -79,9 +80,7 @@ function Pictures({ pictures, update }) {
   }
 
   function confirmAndDelete() {
-    if (confirm('are you sure?')) {
-      update(pictures.filter((p) => p !== selected.val));
-    }
+    confirmAnd(() => update(pictures.filter((p) => p !== selected.val)))
     unselect();
   }
 
@@ -124,10 +123,10 @@ function EditModal({ update, close, ...props }) {
   }
 
   function confirmAndDelete() {
-    if (confirm('are you sure?')) {
+    confirmAnd(() => {
       update({ ...props.picture, deleted: true });
       close()
-    }
+    })
   }
 }
 

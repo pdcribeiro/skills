@@ -2,43 +2,42 @@ import van from './third-party/van.js';
 import db from './db.js';
 import Modal from './components/Modal.js';
 import configHelper from './config.js';
-import { HomePage } from './pages/HomePage.js';
-import { SkillCreatePage } from './pages/SkillCreatePage.js';
-import { SkillDetailsPage } from './pages/SkillDetailsPage.js';
-import { SkillEditPage } from './pages/SkillEditPage.js';
-import { SkillListPage } from './pages/SkillListPage.js';
-import { bind, router, transformValues } from './utils.js';
+import HomePage from './pages/HomePage.js';
+import SkillCreatePage from './pages/SkillCreatePage.js';
+import SkillDetailsPage from './pages/SkillDetailsPage.js';
+import SkillEditPage from './pages/SkillEditPage.js';
+import SkillListPage from './pages/SkillListPage.js';
+import { getRouteHelpers, getRouter } from './routing.js';
+import { bind } from './utils.js';
 
 const { button, div, h1, h2, input, label } = van.tags;
 
-export const routes = transformValues(
-  {
-    home: '#!/',
-    skillList: '#!/skills',
-    skillCreate: '#!/skills/create',
-    skillDetails: '#!/skills/:param',
-    skillEdit: '#!/skills/:param/edit',
-  },
-  (path) =>
-    (param = null) =>
-      param ? path.replace(':param', param) : path
-);
+export const routes = getRouteHelpers({
+  home: '#!/',
+  skillList: '#!/skills',
+  skillCreate: '#!/skills/create',
+  skillDetails: '#!/skills/:param',
+  skillEdit: '#!/skills/:param/edit',
+});
+
+const router = getRouter({
+  [routes.home()]: HomePage,
+  [routes.skillList()]: SkillListPage,
+  [routes.skillCreate()]: SkillCreatePage,
+  [routes.skillDetails()]: SkillDetailsPage,
+  [routes.skillEdit()]: SkillEditPage,
+})
 
 export function app() {
   const configOpen = van.state(false)
   const config = van.state(configHelper.load())
   const connected = van.state(false);
   init();
+
   return div(
-    button({ class: 'small', onclick: () => configOpen.val = true }, 'settings'),
+    () => connected.val ? router() : div(),
+    button({ class: 'small float-right my-4', onclick: () => configOpen.val = true }, 'settings'),
     () => configOpen.val ? ConfigModal({ config, connectToDatabase, close: () => configOpen.val = false }) : div(),
-    () => connected.val ? router({
-      [routes.home()]: HomePage,
-      [routes.skillList()]: SkillListPage,
-      [routes.skillCreate()]: SkillCreatePage,
-      [routes.skillDetails()]: SkillDetailsPage,
-      [routes.skillEdit()]: SkillEditPage,
-    })() : div(),
   )
 
   async function init() {

@@ -5,10 +5,3 @@ import { app } from './app.js';
 // observeLifecycleEvents(document.body);
 
 van.add(document.body, app());
-
-/* TODO
-- feat: allow uploading pictures
-  - feat: edit form: display images horizontally on large screens
-  - feat?: details page: display images in second column in larger screens
-- chore: try switching to non hash based router
-*/

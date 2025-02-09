@@ -1,37 +1,3 @@
-import van from './third-party/van.js';
-
-// TODO: try to simplify (see: https://vanjs.org/demo#code-browser)
-export function router(routes) {
-  const parsedRoutes = parsePaths(routes);
-  console.debug('[router]', { parsedRoutes });
-
-  const getPath = (url) => (new URL(url).hash || '#!/').split('?')[0];
-  const path = van.state(getPath(location.href));
-  window.addEventListener('hashchange', (e) => (path.val = getPath(e.newURL)));
-
-  return () => {
-    console.debug('[router]', { path: path.val });
-    for (const [pattern, handler] of parsedRoutes) {
-      const match = path.val.match(pattern);
-      console.debug('[router]', { pattern, match });
-      if (match) {
-        return handler({ param: match[1] });
-      }
-    }
-  };
-}
-
-function parsePaths(routes) {
-  return Object.entries(routes).map(([path, handler]) => [
-    `^${path.replace(':param', '(\\w+)')}$`,
-    handler,
-  ]);
-}
-
-export function goTo(path) {
-  location.hash = path;
-}
-
 export function transformValues(object, callback) {
   const transformed = Object.entries(object).map(([k, v]) => [k, callback(v)]);
   return Object.fromEntries(transformed);
@@ -79,6 +45,18 @@ export function observeLifecycleEvents(element) {
   observer.observe(element, { childList: true, subtree: true });
   return observer.disconnect;
 }
+
+export function confirmAnd(callback) {
+  return confirm('Are you sure?') && callback();
+}
+
+// export function parseComponentArgs(args) {
+//   if (Object.getPrototypeOf(args[0]) === Object.prototype) {
+//     return args;
+//   } else {
+//     return [{}, ...args];
+//   }
+// }
 
 // export function range(n) {
 //   return [...Array(n).keys()];
