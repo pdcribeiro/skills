@@ -1,13 +1,15 @@
-import van from '/third-party/van-1.5.3.debug.js';
-import { router, transformValues } from './utils.js';
-
+import van from './third-party/van.js';
+import db from './db.js';
+import Modal from './components/Modal.js';
+import configHelper from './config.js';
 import { HomePage } from './pages/HomePage.js';
-import { SkillListPage } from './pages/SkillListPage.js';
 import { SkillCreatePage } from './pages/SkillCreatePage.js';
 import { SkillDetailsPage } from './pages/SkillDetailsPage.js';
 import { SkillEditPage } from './pages/SkillEditPage.js';
+import { SkillListPage } from './pages/SkillListPage.js';
+import { bind, router, transformValues } from './utils.js';
 
-const { button, div } = van.tags;
+const { button, div, h1, h2, input, label } = van.tags;
 
 export const routes = transformValues(
   {
@@ -23,8 +25,12 @@ export const routes = transformValues(
 );
 
 export function app() {
-  return div(
-    button({ class: 'small', onclick: toggleDarkMode }, 'toggle dark mode'),
+  const initialized = van.state(false);
+  const configOpen = van.state(false)
+  const config = van.state(configHelper.load())
+  init();
+  return () => initialized.val ? div(
+    button({ class: 'small', onclick: () => configOpen.val = true }, 'settings'),
     router({
       [routes.home()]: HomePage,
       [routes.skillList()]: SkillListPage,
@@ -32,12 +38,53 @@ export function app() {
       [routes.skillDetails()]: SkillDetailsPage,
       [routes.skillEdit()]: SkillEditPage,
     }),
-  )
+    () => configOpen.val ? ConfigModal({ config, close: () => configOpen.val = false }) : div(),
+  ) : div()
+
+  async function init() {
+    if (config.val) {
+      setDarkMode(config.val.appearance.darkMode);
+      await db.connect(config.val.database);
+      initialized.val = true;
+    }
+  }
 }
 
-function toggleDarkMode() {
-  const bgColor = window.getComputedStyle(document.documentElement).getPropertyValue('--bg-color')
-  const color = window.getComputedStyle(document.documentElement).getPropertyValue('--color')
-  document.documentElement.style.setProperty('--bg-color', color)
-  document.documentElement.style.setProperty('--color', bgColor)
+function ConfigModal({ config, close }) {
+  return Modal({ close },
+    h1('configuration'),
+    h2('appearance'),
+    button({ onclick: toggleDarkMode }, 'toggle dark mode'),
+    h2('database'),
+    label('auth url'), input(bind(config, 'database', 'authUrl')),
+    label('api key'), input(bind(config, 'database', 'apiKey')),
+    label('base url'), input(bind(config, 'database', 'baseUrl')),
+    button({ onclick: connectToDatabase }, 'connect')
+  )
+
+  function toggleDarkMode() {
+    config.val = { ...config.val, appearance: { darkMode: !config.val.appearance.darkMode } }
+    configHelper.save(config.val);
+    setDarkMode(config.val.appearance.darkMode)
+  }
+
+  async function connectToDatabase() {
+    configHelper.save(config.val);
+    await db.connect(config.val.database);
+  }
+}
+
+function setDarkMode(enabled) {
+  const darkColor = getCssVar('--color-dark');
+  const lightColor = getCssVar('--color-light');
+  setCssVar('--bg-color', enabled ? darkColor : lightColor);
+  setCssVar('--color', enabled ? lightColor : darkColor);
+}
+
+function getCssVar(name) {
+  return window.getComputedStyle(document.documentElement).getPropertyValue(name);
+}
+
+function setCssVar(name, value) {
+  document.documentElement.style.setProperty(name, value);
 }

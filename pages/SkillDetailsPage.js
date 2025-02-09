@@ -1,12 +1,11 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from '../third-party/van.js';
 import { routes } from '../app.js';
 import db from '../db.js';
 import { goTo } from '../utils.js';
 
 const { a, button, div, h1, h2, p, img } = van.tags;
 
-export function SkillDetailsPage({ param }) {
-  const id = parseInt(param);
+export function SkillDetailsPage({ param: id }) {
   const skill = van.state(null);
   db.getSkill(id).then((data) => (skill.val = data));
 

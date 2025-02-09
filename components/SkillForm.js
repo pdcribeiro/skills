@@ -1,9 +1,10 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from '../third-party/van.js';
+import Modal from '../components/Modal.js';
 import { bind } from '../utils.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
 
-export function SkillForm({ initialData = {}, ...props }) {
+export default function SkillForm({ initialData = {}, ...props }) {
   const formData = van.state({
     name: '',
     description: '',
@@ -101,15 +102,13 @@ function Pictures({ pictures, update }) {
 
 function EditModal({ update, close, ...props }) {
   const picture = van.state(props.picture);
-  return div({ class: 'overlay flex justify-center items-center', onclick: (e) => e.target === e.currentTarget && close() },
-    div({ class: 'p-6 bg-theme' },
-      () => img({ src: picture.val.url, class: 'max-h-screen/2' }),
-      input({ type: 'file', onchange: loadImage }),
-      textarea({ rows: 5, ...bind(picture, 'description') }),
-      button({ onclick: save }, 'save'),
-      button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
-      button({ class: 'ml-4', onclick: close }, 'cancel'),
-    ),
+  return Modal({ close },
+    () => img({ src: picture.val.url, class: 'max-h-screen/2' }),
+    input({ type: 'file', onchange: loadImage }),
+    textarea({ rows: 5, ...bind(picture, 'description') }),
+    button({ onclick: save }, 'save'),
+    button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+    button({ class: 'ml-4', onclick: close }, 'cancel'),
   );
 
   async function loadImage(event) {

@@ -1,4 +1,4 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from '../third-party/van.js';
 import { routes } from '../app.js';
 import db from '../db.js';
 

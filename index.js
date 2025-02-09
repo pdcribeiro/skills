@@ -1,4 +1,4 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from './third-party/van.js';
 import { app } from './app.js';
 // import { observeLifecycleEvents } from './utils.js';
 

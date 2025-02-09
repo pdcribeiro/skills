@@ -1,4 +1,4 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from './third-party/van.js';
 
 // TODO: try to simplify (see: https://vanjs.org/demo#code-browser)
 export function router(routes) {
@@ -37,13 +37,26 @@ export function transformValues(object, callback) {
   return Object.fromEntries(transformed);
 }
 
-export function bind(state, prop = null) {
-  return prop ? {
-    value: () => state.val[prop],
-    oninput: (e) => state.val = { ...state.val, [prop]: e.target.value },
+export function bind(state, ...props) {
+  return props.length ? {
+    value: () => getNested(state.val, props),
+    oninput: (e) => state.val = setNested(state.val, props, e.target.value),
   } : {
     value: state,
     oninput: (e) => state.val = e.target.value,
+  };
+}
+
+function getNested(obj, path) {
+  return path.reduce((o, key) => (o && o[key] !== undefined ? o[key] : ''), obj);
+}
+
+function setNested(obj, path, value) {
+  if (path.length === 0) return value;
+  const [key, ...rest] = path;
+  return {
+    ...obj,
+    [key]: setNested(obj[key] || {}, rest, value),
   };
 }
 

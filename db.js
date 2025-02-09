@@ -1,98 +1,76 @@
-const CONFIG_KEY = 'skills-config';
-const SKILLS_KEY = 'skills-skills';
+import http from './http.js';
+
+const CLUSTER_NAME = 'Cluster0';
+const DATABASE_NAME = 'skills';
+const COLLECTION_NAME = 'skills';
+
+let accessToken, baseUrl;
 
 const db = {
+  async connect({ authUrl, apiKey, ...config }) {
+    if (!authUrl) {
+      throw new Error('Missing DB auth URL');
+    }
+    if (!apiKey) {
+      throw new Error('Missing DB API key');
+    }
+    if (!config.baseUrl) {
+      throw new Error('Missing DB base URL');
+    }
+    accessToken = await fetchAccessToken(authUrl, apiKey);
+    baseUrl = config.baseUrl;
+    // await migrate();
+  },
   async findSkills() {
-    return get();
+    const { documents } = await req(COLLECTION_NAME, 'find');
+    return documents.map((d) => ({ ...d, id: d._id, _id: undefined }));
   },
   async createSkill(data) {
-    const skills = get();
-    const skill = { id: getNextId(), ...data };
-    skills.push(skill);
-    set(skills);
-    console.debug('[dev db] skill created', skill);
-    return skill;
+    await req(COLLECTION_NAME, 'insertOne', { document: data });
+    console.debug('[dev db] skill created');
   },
   async getSkill(id) {
-    const skill = get().find((s) => s.id === id);
-    if (!skill) {
-      throw new Error('skill not found');
-    }
-    console.debug('[dev db] skill found', skill);
-    return skill;
+    const { document } = await req(COLLECTION_NAME, 'findOne', { filter: { _id: { $oid: id } } });
+    console.debug('[dev db] skill found', document);
+    return { ...document, id: document._id };
   },
   async updateSkill(id, data) {
-    const skills = get();
-    const index = skills.findIndex((s) => s.id === id);
-    if (index === -1) {
-      throw new Error('skill not found');
-    }
-    const skill = { ...skills[index], ...data };
-    skills[index] = skill;
-    set(skills);
-    console.debug('[dev db] skill updated', skill);
-    return skill;
+    await req(COLLECTION_NAME, 'updateOne', { filter: { _id: { $oid: id } }, update: { $set: { ...data, _id: undefined, id: undefined } } });
+    console.debug('[dev db] skill updated');
   },
   async deleteSkill(id) {
-    const skills = get();
-    const index = skills.findIndex((s) => s.id === id);
-    if (index === -1) {
-      throw new Error('skill not found');
-    }
-    const skill = skills[index];
-    skills.splice(index, 1);
-    set(skills);
-    console.debug('[dev db] skill deleted', skill);
+    await req(COLLECTION_NAME, 'deleteOne', { filter: { _id: { $oid: id } } });
+    console.debug('[dev db] skill deleted');
   },
 };
 
-window.migrateDb = function (callback) {
-  const skills = get();
-  const migrated = callback(skills);
-  set(migrated);
-}
-
-function get() {
-  return getJson(SKILLS_KEY) ?? [];
-}
-
-function set(skills) {
-  setJson(SKILLS_KEY, skills);
-}
-
-function getJson(key) {
-  const json = localStorage.getItem(key);
-  return JSON.parse(json);
-}
-
-function setJson(key, value) {
-  const json = JSON.stringify(value);
-  localStorage.setItem(key, json);
-}
-
-function getNextId() {
-  const config = getJson(CONFIG_KEY) ?? {};
-  if (!config.nextId) {
-    config.nextId = 1;
-  } else {
-    config.nextId += 1;
-  }
-  setJson(CONFIG_KEY, config);
-  return config.nextId;
-}
-
 export default db;
 
+async function fetchAccessToken(url, key) {
+  console.debug('[db] fetchAccessToken() call');
+  const response = await http.postJson({
+    url,
+    body: { key },
+  });
+  return response.access_token;
+}
 
-// MIGRATIONS
-
-// migrateDb(skills => skills.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
-
-
-// SEEDS
-
-// await db.createSkill({ name: 'effleurage', description: 'lorem ipsum', images: [], tags: [] });
-
-// import seeds from './seeds.json'
-// localStorage.setItem(CONFIG_KEY, seeds.config)
-// localStorage.setItem(SKILLS_KEY, seeds.skills)
+async function req(collection, action, body) {
+  console.debug('[db] req() call', { body });
+  if (!accessToken) {
+    throw new Error('Please authenticate before calling the DB');
+  }
+  const response = await http.postJson({
+    url: `${baseUrl}/action/${action}`,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: {
+      ...body,
+      dataSource: CLUSTER_NAME,
+      database: DATABASE_NAME,
+      collection,
+    },
+  });
+  return response;
+}

@@ -1,9 +1,9 @@
-import van from '/third-party/van-1.5.3.debug.js';
+import van from '../third-party/van.js';
 import { routes } from '../app.js';
 import db from '../db.js';
 import images from '../images.js';
 import { goTo } from '../utils.js';
-import { SkillForm } from '../components/SkillForm.js';
+import SkillForm from '../components/SkillForm.js';
 
 const { a, div, h1 } = van.tags;
 
