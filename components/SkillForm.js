@@ -44,7 +44,7 @@ function Pictures({ pictures, update }) {
   const selected = van.state(null);
   const editing = van.state(null);
   return div({ class: 'mb-4' },
-    div({ class: 'flex overflow-y-auto flex-col gap-4 items-center h-152' },
+    div({ class: 'flex overflow-y-auto flex-col gap-4 items-center max-h-152' },
       pictures.map((pic, index) =>
         div({ class: 'relative' },
           img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),

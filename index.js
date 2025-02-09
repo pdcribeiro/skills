@@ -8,6 +8,7 @@ van.add(document.body, app());
 
 /* TODO
 - feat: use DB
+- feat: make public
 - feat: allow uploading pictures
   - feat: edit form: display images horizontally on large screens
   - feat?: details page: display images in second column in larger screens

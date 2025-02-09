@@ -182,14 +182,14 @@ button.small,
 .h-14 {
     height: 3.5rem;
 }
-.h-152 {
-    height: 38rem;
-}
 .h-screen\/2 {
     height: 50vh;
 }
 .min-h-48 {
     min-height: 12rem;
+}
+.max-h-152 {
+    max-height: 38rem;
 }
 .max-h-screen\/2 {
     max-height: 50vh;
