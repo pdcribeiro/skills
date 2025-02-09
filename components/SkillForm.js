@@ -103,7 +103,7 @@ function Pictures({ pictures, update }) {
 function EditModal({ update, close, ...props }) {
   const picture = van.state(props.picture);
   return Modal({ close },
-    () => img({ src: picture.val.url, class: 'max-h-screen/2' }),
+    () => img({ src: picture.val.url, class: 'block mx-auto mb-4 max-h-screen/2' }),
     input({ type: 'file', onchange: loadImage }),
     textarea({ rows: 5, ...bind(picture, 'description') }),
     button({ onclick: save }, 'save'),
