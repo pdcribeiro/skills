@@ -15,17 +15,19 @@ export function SkillForm({ initialData = {}, ...props }) {
   return div(
     label('name'), input(bind(formData, 'name')),
     label('description'), textarea({ rows: 12, ...bind(formData, 'description') }),
-    label('pictures'), input({ type: 'file', onchange: loadImage }),
+    label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
     () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
     label('tags'), textarea(bind(formData, 'tags')),
     button({ onclick: submit }, 'save')
   );
 
-  async function loadImage(event) {
-    const file = event.target.files[0];
-    const url = await getLocalUrl(file);
-    const picture = { file, url, description: '', unsaved: true };
-    updatePictures([...formData.val.pictures, picture]);
+  async function loadImages(event) {
+    console.log(event.target, event.target.files)
+    const pictures = await Promise.all([...event.target.files].map(async (file) => {
+      const url = await getLocalUrl(file)
+      return { file, url, description: '', unsaved: true }
+    }))
+    updatePictures([...formData.val.pictures, ...pictures]);
   }
 
   function updatePictures(pictures) {

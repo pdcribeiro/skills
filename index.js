@@ -7,10 +7,9 @@ import { app } from './app.js';
 van.add(document.body, app());
 
 /* TODO
+- feat: use DB
 - feat: allow uploading pictures
-  - feat: allow adding multiple images
   - feat: edit form: display images horizontally on large screens
   - feat?: details page: display images in second column in larger screens
-- feat: use DB
-- chore: try to switch to non hash based router
+- chore: try switching to non hash based router
 */
