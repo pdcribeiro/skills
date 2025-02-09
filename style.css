@@ -158,6 +158,9 @@ button.small,
 .p-6 {
     padding: 1.5rem !important;
 }
+.m-4 {
+    margin: 1rem !important;
+}
 .mb-4 {
     margin-bottom: 1rem !important;
 }
@@ -178,6 +181,9 @@ button.small,
 /* sizing */
 .w-full {
     width: 100%;
+}
+.max-w-200 {
+    max-width: 50rem;
 }
 .h-14 {
     height: 3.5rem;

@@ -25,33 +25,42 @@ export const routes = transformValues(
 );
 
 export function app() {
-  const initialized = van.state(false);
   const configOpen = van.state(false)
   const config = van.state(configHelper.load())
+  const connected = van.state(false);
   init();
-  return () => initialized.val ? div(
+  return div(
     button({ class: 'small', onclick: () => configOpen.val = true }, 'settings'),
-    router({
+    () => configOpen.val ? ConfigModal({ config, connectToDatabase, close: () => configOpen.val = false }) : div(),
+    () => connected.val ? router({
       [routes.home()]: HomePage,
       [routes.skillList()]: SkillListPage,
       [routes.skillCreate()]: SkillCreatePage,
       [routes.skillDetails()]: SkillDetailsPage,
       [routes.skillEdit()]: SkillEditPage,
-    }),
-    () => configOpen.val ? ConfigModal({ config, close: () => configOpen.val = false }) : div(),
-  ) : div()
+    })() : div(),
+  )
 
   async function init() {
     if (config.val) {
       setDarkMode(config.val.appearance.darkMode);
+      await connectToDatabase();
+    }
+  }
+
+  async function connectToDatabase() {
+    try {
       await db.connect(config.val.database);
-      initialized.val = true;
+      connected.val = true;
+    } catch (e) {
+      console.error(e)
+      connected.val = false;
     }
   }
 }
 
-function ConfigModal({ config, close }) {
-  return Modal({ close },
+function ConfigModal({ config, close, ...props }) {
+  return Modal({ class: 'w-full max-w-200', close },
     h1('configuration'),
     h2('appearance'),
     button({ onclick: toggleDarkMode }, 'toggle dark mode'),
@@ -70,7 +79,7 @@ function ConfigModal({ config, close }) {
 
   async function connectToDatabase() {
     configHelper.save(config.val);
-    await db.connect(config.val.database);
+    await props.connectToDatabase();
   }
 }
 

@@ -27,27 +27,27 @@ const db = {
   },
   async createSkill(data) {
     await req(COLLECTION_NAME, 'insertOne', { document: data });
-    console.debug('[dev db] skill created');
+    console.debug('[database] skill created');
   },
   async getSkill(id) {
     const { document } = await req(COLLECTION_NAME, 'findOne', { filter: { _id: { $oid: id } } });
-    console.debug('[dev db] skill found', document);
+    console.debug('[database] skill found', document);
     return { ...document, id: document._id };
   },
   async updateSkill(id, data) {
     await req(COLLECTION_NAME, 'updateOne', { filter: { _id: { $oid: id } }, update: { $set: { ...data, _id: undefined, id: undefined } } });
-    console.debug('[dev db] skill updated');
+    console.debug('[database] skill updated');
   },
   async deleteSkill(id) {
     await req(COLLECTION_NAME, 'deleteOne', { filter: { _id: { $oid: id } } });
-    console.debug('[dev db] skill deleted');
+    console.debug('[database] skill deleted');
   },
 };
 
 export default db;
 
 async function fetchAccessToken(url, key) {
-  console.debug('[db] fetchAccessToken() call');
+  console.debug('[database] fetchAccessToken() call');
   const response = await http.postJson({
     url,
     body: { key },
@@ -56,7 +56,7 @@ async function fetchAccessToken(url, key) {
 }
 
 async function req(collection, action, body) {
-  console.debug('[db] req() call', { body });
+  console.debug('[database] req() call', { body });
   if (!accessToken) {
     throw new Error('Please authenticate before calling the DB');
   }
