@@ -39,13 +39,58 @@ export function SkillForm({ initialData = {}, ...props }) {
 }
 
 function Pictures({ pictures, update }) {
+  const selected = van.state(null);
   const editing = van.state(null);
   return div({ class: 'mb-4' },
     div({ class: 'flex overflow-y-auto flex-col gap-4 items-center h-152' },
-      pictures.map((pic) => img({ src: pic.url, class: 'p-2 min-h-48 size-48 border', onclick: () => editing.val = pic })),
+      pictures.map((pic, index) =>
+        div({ class: 'relative' },
+          img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
+          () => pic === selected.val ?
+            div(
+              div({ class: 'overlay bg-transparent', onclick: unselect }),
+              div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
+                div(
+                  button({ onclick: edit }, 'edit'),
+                  button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+                ),
+                div(
+                  button({ disabled: index === 0, onclick: moveBefore }, '<'),
+                  button({ disabled: index === pictures.length - 1, class: 'ml-4', onclick: moveAfter }, '>'),
+                ),
+              ),
+            ) : div(),
+        ),
+      ),
     ),
     () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
   );
+
+  function unselect() {
+    selected.val = null;
+  }
+
+  function edit() {
+    editing.val = selected.val;
+    unselect();
+  }
+
+  function confirmAndDelete() {
+    if (confirm('are you sure?')) {
+      update(pictures.filter((p) => p !== selected.val));
+    }
+    unselect();
+  }
+
+  function moveBefore() {
+    const index = pictures.findIndex(p => p === selected.val);
+    update([...pictures.slice(0, index - 1), selected.val, pictures[index - 1], ...pictures.slice(index + 1)])
+  }
+
+  function moveAfter() {
+    const index = pictures.findIndex(p => p === selected.val);
+    update([...pictures.slice(0, index), pictures[index + 1], selected.val, ...pictures.slice(index + 2)])
+  }
 
   function updatePicture(picture) {
     update(pictures.map((p) => (p === editing.val ? picture : p)).filter((p) => !p.deleted));
@@ -54,8 +99,8 @@ function Pictures({ pictures, update }) {
 
 function EditModal({ update, close, ...props }) {
   const picture = van.state(props.picture);
-  return div({ class: 'modal', onclick: (e) => e.target === e.currentTarget && close() },
-    div(
+  return div({ class: 'overlay flex justify-center items-center', onclick: (e) => e.target === e.currentTarget && close() },
+    div({ class: 'p-6 bg-theme' },
       () => img({ src: picture.val.url, class: 'max-h-screen/2' }),
       input({ type: 'file', onchange: loadImage }),
       textarea({ rows: 5, ...bind(picture, 'description') }),
@@ -77,7 +122,7 @@ function EditModal({ update, close, ...props }) {
     close();
   }
 
-  async function confirmAndDelete() {
+  function confirmAndDelete() {
     if (confirm('are you sure?')) {
       update({ ...props.picture, deleted: true });
       close()

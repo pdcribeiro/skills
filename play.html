@@ -4,42 +4,78 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="/third-party/tailwindcss.min.js"></script> -->
     <style>
-        .container {
-            display: grid;
-            /* grid: repeat(2, 60px) / auto-flow 80px; */
-            grid-template-rows: repeat(3, 1fr);
-            grid-gap: 1rem;
-            overflow-y: auto;
-            height: 100;
-        }
-        .container > div {
-            display: flex;
-            background-color: #8ca0ff;
-            width: 50px;
-            height: 50px;
-        }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
 </body>
 
 <script type="module">
     import van from '/third-party/van-1.5.3.debug.js'
 
     const { a, button, div, h1, p } = van.tags
+    const life = van.tags['lifecycle-manager']
 
-    van.add(document.body, p('hello, world!'))
+    function app() {
+        const customVisible = van.state(false)
+        const regularVisible = van.state(false)
+        return div(
+            button({ onclick: () => customVisible.val = !customVisible.val }, 'toggle custom element'),
+            button({ onclick: () => regularVisible.val = !regularVisible.val }, 'toggle regular element'),
+            div(
+                () => customVisible.val ? CustomElement() : div(),
+                () => regularVisible.val ? RegularElement() : div(),
+            ),
+        )
+    }
+
+    function CustomElement() {
+        return div(
+            life({
+                onmount: () => console.log('mounted custom'),
+                onunmount: () => console.log('unmounted custom')
+            }),
+            'custom',
+        );
+    }
+
+    function RegularElement() {
+        return div({
+            onmount: () => console.log('mounted regular'),
+            onunmount: () => console.log('unmounted regular')
+        }, 'regular');
+    }
+
+    class MyCustomElement extends HTMLElement {
+        constructor() {
+            super();
+        }
+        connectedCallback() {
+            this.dispatchEvent(new Event('mount'));
+        }
+        disconnectedCallback() {
+            this.dispatchEvent(new Event('unmount'));
+        }
+    }
+    customElements.define('lifecycle-manager', MyCustomElement);
+
+    new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    node.dispatchEvent(new Event('mount'));
+                }
+            });
+            mutation.removedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    node.dispatchEvent(new Event('unmount'));
+                }
+            });
+        });
+    }).observe(document.body, { childList: true, subtree: true });
+
+    van.add(document.body, app())
 </script>
 
 </html>

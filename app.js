@@ -22,16 +22,18 @@ export const routes = transformValues(
       param ? path.replace(':param', param) : path
 );
 
-export const app = div(
-  button({ class: 'small', onclick: toggleDarkMode }, 'toggle dark mode'),
-  router({
-    [routes.home()]: HomePage,
-    [routes.skillList()]: SkillListPage,
-    [routes.skillCreate()]: SkillCreatePage,
-    [routes.skillDetails()]: SkillDetailsPage,
-    [routes.skillEdit()]: SkillEditPage,
-  }),
-)
+export function app() {
+  return div(
+    button({ class: 'small', onclick: toggleDarkMode }, 'toggle dark mode'),
+    router({
+      [routes.home()]: HomePage,
+      [routes.skillList()]: SkillListPage,
+      [routes.skillCreate()]: SkillCreatePage,
+      [routes.skillDetails()]: SkillDetailsPage,
+      [routes.skillEdit()]: SkillEditPage,
+    }),
+  )
+}
 
 function toggleDarkMode() {
   const bgColor = window.getComputedStyle(document.documentElement).getPropertyValue('--bg-color')

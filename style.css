@@ -87,27 +87,23 @@ button.small,
     margin: 0.5rem 0;
 }
 
+.bg-theme {
+    background-color: var(--bg-color);
+}
+
 .border {
     border: 1px solid var(--color-neutral);
 }
 
 /* Components */
 
-.modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
+.overlay {
     position: fixed;
     inset: 0;
-    z-index: 1;
-
     background-color: color-mix(in srgb, var(--color) 50%, transparent);
 }
-
-.modal > div {
-    padding: 1.5rem;
-    background-color: var(--bg-color);
+.overlay.bg-theme {
+    background-color: color-mix(in srgb, var(--bg-color) 50%, transparent);
 }
 
 /* Utilities */
@@ -131,6 +127,12 @@ button.small,
 .overflow-y-auto {
     overflow-y: auto;
 }
+.absolute {
+    position: absolute;
+}
+.relative {
+    position: relative;
+}
 
 /* flexbox & grid */
 .flex-col {
@@ -152,6 +154,9 @@ button.small,
 /* spacing */
 .p-2 {
     padding: 0.5rem !important;
+}
+.p-6 {
+    padding: 1.5rem !important;
 }
 .mb-4 {
     margin-bottom: 1rem !important;
@@ -203,6 +208,11 @@ button.small,
 }
 .whitespace-pre-wrap {
     white-space: pre-wrap;
+}
+
+/* backgrounds */
+.bg-transparent {
+    background-color: transparent;
 }
 
 /* interactivity */

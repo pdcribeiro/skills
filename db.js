@@ -46,10 +46,6 @@ const db = {
   },
 };
 
-// await db.createSkill({ name: 'hip key', description: 'just do it' });
-
-// migrateDb(skills => skills.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
-
 window.migrateDb = function (callback) {
   const skills = get();
   const migrated = callback(skills);
@@ -86,3 +82,17 @@ function getNextId() {
 }
 
 export default db;
+
+
+// MIGRATIONS
+
+// migrateDb(skills => skills.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
+
+
+// SEEDS
+
+// await db.createSkill({ name: 'effleurage', description: 'lorem ipsum', images: [], tags: [] });
+
+// import seeds from './seeds.json'
+// localStorage.setItem(CONFIG_KEY, seeds.config)
+// localStorage.setItem(SKILLS_KEY, seeds.skills)
