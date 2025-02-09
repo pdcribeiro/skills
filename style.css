@@ -7,8 +7,6 @@
 
     --bg-color: var(--color-light);
     --color: var(--color-dark);
-
-    --max-image-size: 500px;
 }
 
 html {
@@ -20,7 +18,7 @@ html {
 body {
     padding: 1rem 2rem;
     margin: auto;
-    max-width: 1200px;
+    max-width: 1024px;
     min-height: 100vh;
 }
 
