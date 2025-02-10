@@ -1,4 +1,4 @@
-import kvstorage from './kvstorage.js';
+import kvstore from './kvstore.js';
 
 const CONFIG_KEY = 'skills-config';
 const DEFAULT_CONFIG = {
@@ -14,9 +14,9 @@ const DEFAULT_CONFIG = {
 
 export default {
   load() {
-    return kvstorage.get(CONFIG_KEY) ?? DEFAULT_CONFIG;
+    return kvstore.get(CONFIG_KEY) ?? DEFAULT_CONFIG;
   },
   save(config) {
-    kvstorage.set(CONFIG_KEY, config)
+    kvstore.set(CONFIG_KEY, config)
   },
 };

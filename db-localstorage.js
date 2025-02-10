@@ -1,4 +1,4 @@
-import kvstorage from './kvstorage.js';
+import kvstore from './kvstore.js';
 
 const CONFIG_KEY = 'skills-database-config';
 const COLLECTION_KEY = 'skills-database-collection';
@@ -55,21 +55,21 @@ window.migrateDb = function (callback) {
 }
 
 function get() {
-  return kvstorage.get(COLLECTION_KEY) ?? [];
+  return kvstore.get(COLLECTION_KEY) ?? [];
 }
 
 function set(skills) {
-  kvstorage.set(COLLECTION_KEY, skills);
+  kvstore.set(COLLECTION_KEY, skills);
 }
 
 function getNextId() {
-  const config = kvstorage.get(CONFIG_KEY) ?? {};
+  const config = kvstore.get(CONFIG_KEY) ?? {};
   if (!config.nextId) {
     config.nextId = 1;
   } else {
     config.nextId += 1;
   }
-  kvstorage.set(CONFIG_KEY, config);
+  kvstore.set(CONFIG_KEY, config);
   return config.nextId;
 }
 
