@@ -58,7 +58,7 @@ async function fetchAccessToken(url, key) {
 async function req(collection, action, body) {
   console.debug('[database] req() call', { body });
   if (!accessToken) {
-    throw new Error('Please authenticate before calling the DB');
+    throw new Error('[database] missing access token');
   }
   const response = await http.postJson({
     url: `${baseUrl}/action/${action}`,
