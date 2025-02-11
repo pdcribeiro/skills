@@ -1,25 +1,39 @@
 import http from './http.js';
+import kvstore from './kvstore.js';
+
+const AUTH_TOKENS_STORE_KEY = 'skills-database-auth-tokens';
+const _30_MINUTES_IN_MS = 30 * 60 * 1000;
+const _60_DAYS_IN_MS = 60 * 24 * 60 * 60 * 1000;
+const REFRESH_INTERVAL_FACTOR = 0.97
+const ACCESS_TOKEN_LIFETIME = _30_MINUTES_IN_MS * REFRESH_INTERVAL_FACTOR;
+const REFRESH_TOKEN_LIFETIME = _60_DAYS_IN_MS * REFRESH_INTERVAL_FACTOR;
+const REFRESH_ENDPOINT_PATH = '/api/client/v2.0/auth/session'
 
 const CLUSTER_NAME = 'Cluster0';
 const DATABASE_NAME = 'skills';
 const COLLECTION_NAME = 'skills';
 
-let accessToken, baseUrl;
+let config, authTokens;
 
 const db = {
-  async connect({ authUrl, apiKey, ...config }) {
-    if (!authUrl) {
+  async connect(config_) {
+    if (!config_.authUrl) {
       throw new Error('Missing DB auth URL');
     }
-    if (!apiKey) {
+    if (!config_.apiKey) {
       throw new Error('Missing DB API key');
     }
-    if (!config.baseUrl) {
+    if (!config_.baseUrl) {
       throw new Error('Missing DB base URL');
     }
-    accessToken = await fetchAccessToken(authUrl, apiKey);
-    baseUrl = config.baseUrl;
-    // await migrate();
+    config = config_
+
+    authTokens = kvstore.get(AUTH_TOKENS_STORE_KEY)
+    if (!authTokens || Date.now() > authTokens.refreshToken.expiresAt) {
+      await fetchAuthTokens();
+    } else if (Date.now() > authTokens.accessToken.expiresAt) {
+      await refreshAccessToken();
+    }
   },
   async findSkills() {
     const { documents } = await req(COLLECTION_NAME, 'find');
@@ -31,7 +45,7 @@ const db = {
   },
   async getSkill(id) {
     const { document } = await req(COLLECTION_NAME, 'findOne', { filter: { _id: { $oid: id } } });
-    console.debug('[database] skill found', document);
+    console.debug('[database] skill found');
     return { ...document, id: document._id };
   },
   async updateSkill(id, data) {
@@ -46,24 +60,49 @@ const db = {
 
 export default db;
 
-async function fetchAccessToken(url, key) {
-  console.debug('[database] fetchAccessToken() call');
+async function fetchAuthTokens() {
+  console.debug('[database] fetchAuthTokens() call');
   const response = await http.postJson({
-    url,
-    body: { key },
+    url: config.authUrl,
+    body: { key: config.apiKey },
   });
-  return response.access_token;
+  authTokens = {
+    accessToken: getAccessTokenWithExpiration(response.access_token),
+    refreshToken: {
+      token: response.refresh_token,
+      expiresAt: Date.now() + REFRESH_TOKEN_LIFETIME,
+    }
+  };
+  kvstore.set(AUTH_TOKENS_STORE_KEY, authTokens)
+  setTimeout(REFRESH_TOKEN_LIFETIME, fetchAuthTokens)
+}
+
+async function refreshAccessToken() {
+  console.debug('[database] refreshAccessToken() call');
+  const response = await http.postJson({
+    url: new URL(config.authUrl).origin + REFRESH_ENDPOINT_PATH,
+  });
+  authTokens.accessToken = getAccessTokenWithExpiration(response.access_token)
+  kvstore.set(AUTH_TOKENS_STORE_KEY, authTokens)
+  setTimeout(ACCESS_TOKEN_LIFETIME, refreshAccessToken)
+}
+
+function getAccessTokenWithExpiration(token) {
+  return {
+    token,
+    expiresAt: Date.now() + ACCESS_TOKEN_LIFETIME,
+  }
 }
 
 async function req(collection, action, body) {
   console.debug('[database] req() call', { body });
-  if (!accessToken) {
-    throw new Error('[database] missing access token');
+  if (!config || !authTokens) {
+    throw new Error('[database] not connected');
   }
   const response = await http.postJson({
-    url: `${baseUrl}/action/${action}`,
+    url: `${config.baseUrl}/action/${action}`,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${authTokens.accessToken.token}`,
     },
     body: {
       ...body,

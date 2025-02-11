@@ -1,5 +1,5 @@
 export default {
-  async postJson({ url, body, query = null, headers = null }) {
+  async postJson({ url, query = null, headers = null, body = null }) {
     console.debug('[http] postJson() call');
     let fullUrl = url;
     if (query) {
@@ -11,7 +11,7 @@ export default {
         'Content-Type': 'application/json',
         ...headers,
       },
-      body: JSON.stringify(body),
+      ...(body && { body: JSON.stringify(body) }),
     });
     const json = await response.json();
     return json;

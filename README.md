@@ -9,3 +9,7 @@
   - feat: edit form: display images horizontally on large screens
   - feat?: details page: display images in second column in larger screens
 - chore: try switching to non hash based router
+
+test
+- access token refresh on load when expired
+- access token auto refresh before expiring

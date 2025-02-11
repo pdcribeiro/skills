@@ -14,7 +14,6 @@ export default function SkillListPage() {
   const searchStrings = van.derive(() => search.val.trim().split(' ').map((s) => s.trim()).filter((s) => s.length))
   const searchTags = van.derive(() => searchStrings.val.filter((s) => s.startsWith(TAG_PREFIX)).map((s) => s.slice(TAG_PREFIX.length)))
   const searchWords = van.derive(() => searchStrings.val.filter((s) => !s.startsWith(TAG_PREFIX)))
-  van.derive(() => console.log([searchStrings, searchTags, searchWords].map((s) => s.val)))
 
   return div(
     div({ class: 'flex sticky top-0 items-center bg-theme' },
