@@ -81,7 +81,13 @@ async function refreshAccessToken() {
   console.debug('[database] refreshAccessToken() call');
   const response = await http.postJson({
     url: new URL(config.authUrl).origin + REFRESH_ENDPOINT_PATH,
+    headers: {
+      Authorization: `Bearer ${authTokens.refreshToken.token}`
+    }
   });
+  if (!response.access_token) {
+    throw new Error('[database] failed to refresh access token')
+  }
   authTokens.accessToken = getAccessTokenWithExpiration(response.access_token)
   kvstore.set(AUTH_TOKENS_STORE_KEY, authTokens)
   setTimeout(ACCESS_TOKEN_LIFETIME, refreshAccessToken)
