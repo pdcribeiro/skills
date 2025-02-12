@@ -26,26 +26,6 @@ function setNested(obj, path, value) {
   };
 }
 
-// note: event handlers must be assigned to the root element being added/removed
-export function observeLifecycleEvents(element) {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          node.dispatchEvent(new Event('mount'));
-        }
-      });
-      mutation.removedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          node.dispatchEvent(new Event('unmount'));
-        }
-      });
-    });
-  });
-  observer.observe(element, { childList: true, subtree: true });
-  return observer.disconnect;
-}
-
 export function confirmAnd(callback) {
   return confirm('Are you sure?') && callback();
 }
