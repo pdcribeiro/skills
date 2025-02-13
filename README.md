@@ -3,7 +3,6 @@
 ## TODO
 
 - chore: adapt DragAndDropList to work with click and touch events instead
-  - add delay to trigger drag
   - scroll up/down when clientY in top/bottom 10% of viewport
 
 - chore: performance improvements

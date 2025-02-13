@@ -9,7 +9,7 @@ export default function DragAndDropList({ items, onupdate }) {
 
   let dragTimeout, draggedItem, dragStartY, virtualList, lastCursorY;
 
-  const list = ul(items.map((item) => li({
+  const list = ul({ class: 'list-none p-0' }, items.map((item) => li({
     onpointerdown, onpointerup,
     ontouchstart: preventDefault,
   }, item)));

@@ -1,5 +1,6 @@
 import van from '../third-party/van.js';
-import Modal from '../components/Modal.js';
+import DragAndDropList from './DragAndDropList.js'
+import Modal from './Modal.js';
 import { bind, confirmAnd } from '../utils.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
@@ -24,7 +25,6 @@ export default function SkillForm({ initialData = {}, cancel, ...props }) {
   );
 
   async function loadImages(event) {
-    console.log(event.target, event.target.files)
     const pictures = await Promise.all([...event.target.files].map(async (file) => {
       const url = await getLocalUrl(file)
       return { file, url, description: '', unsaved: true }
@@ -47,25 +47,24 @@ function Pictures({ pictures, update }) {
   const editing = van.state(null);
   return div({ class: 'mb-4' },
     div({ class: 'flex overflow-y-auto flex-col gap-4 items-center max-h-152' },
-      pictures.map((pic, index) =>
-        div({ class: 'relative' },
-          img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
-          () => pic === selected.val ?
-            div(
-              div({ class: 'overlay bg-transparent', onclick: unselect }),
-              div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
-                div(
-                  button({ onclick: edit }, 'edit'),
-                  button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+      DragAndDropList({
+        items: pictures.map((pic) =>
+          div({ class: 'relative' },
+            img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
+            () => pic === selected.val ?
+              div(
+                div({ class: 'overlay bg-transparent', onclick: unselect }),
+                div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
+                  div(
+                    button({ onclick: edit }, 'edit'),
+                    button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+                  ),
                 ),
-                div(
-                  button({ disabled: index === 0, onclick: moveBefore }, '<'),
-                  button({ disabled: index === pictures.length - 1, class: 'ml-4', onclick: moveAfter }, '>'),
-                ),
-              ),
-            ) : div(),
+              ) : div(),
+          ),
         ),
-      ),
+        onupdate: handleMove,
+      }),
     ),
     () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
   );
@@ -84,14 +83,11 @@ function Pictures({ pictures, update }) {
     unselect();
   }
 
-  function moveBefore() {
-    const index = pictures.findIndex(p => p === selected.val);
-    update([...pictures.slice(0, index - 1), selected.val, pictures[index - 1], ...pictures.slice(index + 1)])
-  }
-
-  function moveAfter() {
-    const index = pictures.findIndex(p => p === selected.val);
-    update([...pictures.slice(0, index), pictures[index + 1], selected.val, ...pictures.slice(index + 2)])
+  function handleMove(originalIndex, newIndex) {
+    const clone = [...pictures];
+    const [movedItem] = clone.splice(originalIndex, 1);
+    clone.splice(newIndex, 0, movedItem);
+    update(clone);
   }
 
   function updatePicture(picture) {

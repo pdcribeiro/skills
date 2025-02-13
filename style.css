@@ -168,6 +168,9 @@ button.small,
 
 /* spacing */
 /* padding */
+.p-0 {
+    padding: 0 !important;
+}
 .p-2 {
     padding: 0.5rem !important;
 }
@@ -246,6 +249,9 @@ button.small,
 }
 
 /* typography */
+.list-none {
+    list-style-type: none;
+}
 .text-center {
     text-align: center;
 }
