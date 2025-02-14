@@ -46,25 +46,22 @@ function Pictures({ pictures, update }) {
   const selected = van.state(null);
   const editing = van.state(null);
   return div({ class: 'mb-4' },
-    div({ class: 'flex overflow-y-auto flex-col gap-4 items-center max-h-152' },
-      DragAndDropList({
-        items: pictures.map((pic) =>
-          div({ class: 'relative' },
-            img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
-            () => pic === selected.val ?
-              div(
-                div({ class: 'overlay bg-transparent', onclick: unselect }),
-                div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
-                  div(
-                    button({ onclick: edit }, 'edit'),
-                    button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
-                  ),
+    DragAndDropList({ class: 'flex flex-col gap-4 items-center max-h-152', onupdate: handleMove },
+      pictures.map((pic) =>
+        div({ class: 'relative' },
+          img({ src: pic.url, draggable: false, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
+          () => pic === selected.val ?
+            div(
+              div({ class: 'overlay bg-transparent', onclick: unselect }),
+              div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
+                div(
+                  button({ onclick: edit }, 'edit'),
+                  button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
                 ),
-              ) : div(),
-          ),
+              ),
+            ) : div(),
         ),
-        onupdate: handleMove,
-      }),
+      )
     ),
     () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
   );

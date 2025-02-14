@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
     <style>
         p {
             white-space: pre-wrap;
@@ -48,29 +49,29 @@
             { text: 'lorem\nipsum\nipsum' },
             { text: 'lorem' },
             // repeated
-            // { text: 'lorem' },
-            // { text: 'lorem ipsum' },
-            // { text: 'lorem\nipsum' },
-            // { text: 'lorem\nipsum\nipsum' },
-            // { text: 'lorem' },
-            // { text: 'lorem' },
-            // { text: 'lorem ipsum' },
-            // { text: 'lorem\nipsum' },
-            // { text: 'lorem\nipsum\nipsum' },
-            // { text: 'lorem' },
-            // { text: 'lorem' },
-            // { text: 'lorem ipsum' },
-            // { text: 'lorem\nipsum' },
-            // { text: 'lorem\nipsum\nipsum' },
-            // { text: 'lorem' },
-            // { text: 'lorem' },
-            // { text: 'lorem ipsum' },
-            // { text: 'lorem\nipsum' },
-            // { text: 'lorem\nipsum\nipsum' },
-            // { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
         ])
 
-        return DragAndDropList({ items: items.val.map(item => p(item.text)), onupdate }); // no need to re-render
+        return DragAndDropList({ class: 'max-h-152', onupdate }, items.val.map(item => p(item.text))); // no need to re-render
 
         function onupdate(originalIndex, newIndex) {
             const clone = [...items.val];

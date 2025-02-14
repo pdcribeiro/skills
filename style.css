@@ -15,13 +15,6 @@ html {
     background-color: var(--bg-color);
 }
 
-body {
-    padding: 1rem 2rem;
-    margin: auto;
-    max-width: 1024px;
-    min-height: 100vh;
-}
-
 a {
     color: inherit;
     /* text-decoration: none; */
@@ -174,8 +167,16 @@ button.small,
 .p-2 {
     padding: 0.5rem !important;
 }
+.py-4 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
 .p-6 {
     padding: 1.5rem !important;
+}
+.px-8 {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
 }
 /* margin */
 .m-0 {
@@ -184,28 +185,28 @@ button.small,
 .m-4 {
     margin: 1rem !important;
 }
-.mx-8 {
-    margin-left: 2rem !important;
-    margin-right: 2rem !important;
-}
 .my-4 {
     margin-top: 1rem !important;
     margin-bottom: 1rem !important;
 }
-.mr-8 {
-    margin-right: 2rem !important;
-}
 .mb-4 {
     margin-bottom: 1rem !important;
+}
+.ml-4 {
+    margin-left: 1rem !important;
 }
 .mb-6 {
     margin-bottom: 1.5rem !important;
 }
+.mx-8 {
+    margin-left: 2rem !important;
+    margin-right: 2rem !important;
+}
+.mr-8 {
+    margin-right: 2rem !important;
+}
 .mb-8 {
     margin-bottom: 2rem !important;
-}
-.ml-4 {
-    margin-left: 1rem !important;
 }
 .m-auto {
     margin: auto !important;
@@ -226,6 +227,9 @@ button.small,
 .max-w-200 {
     max-width: 50rem;
 }
+.max-w-screen-lg {
+    max-width: 1024px;
+}
 /* height */
 .h-14 {
     height: 3.5rem;
@@ -235,6 +239,9 @@ button.small,
 }
 .min-h-48 {
     min-height: 12rem;
+}
+.min-h-screen {
+    min-height: 100vh;
 }
 .max-h-152 {
     max-height: 38rem;

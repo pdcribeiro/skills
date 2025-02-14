@@ -30,13 +30,13 @@ export function confirmAnd(callback) {
   return confirm('Are you sure?') && callback();
 }
 
-// export function parseComponentArgs(args) {
-//   if (Object.getPrototypeOf(args[0]) === Object.prototype) {
-//     return args;
-//   } else {
-//     return [{}, ...args];
-//   }
-// }
+export function parseComponentArgs(args) {
+  if (Object.getPrototypeOf(args[0]) === Object.prototype) {
+    return [args[0], ...args.slice(1).flat(Infinity)];
+  } else {
+    return [{}, ...args.flat(Infinity)];
+  }
+}
 
 // export function range(n) {
 //   return [...Array(n).keys()];

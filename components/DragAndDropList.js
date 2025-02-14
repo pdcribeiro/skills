@@ -1,18 +1,26 @@
 import van from '../third-party/van.js';
+import { parseComponentArgs } from '../utils.js';
 
 const CLICK_AND_HOLD_TIME = 500;
+const SCROLL_AMOUNT = 10;
 
 const { li, ul } = van.tags;
 
-export default function DragAndDropList({ items, onupdate }) {
+// note: must set height to allow scroll
+// note: images must have draggable set to false
+export default function DragAndDropList(...args) {
   console.debug('[DragAndDropList] rendering...')
 
-  let dragTimeout, draggedItem, dragStartY, virtualList, lastCursorY;
+  const [{ onupdate, ...props }, ...children] = parseComponentArgs(args);
 
-  const list = ul({ class: 'list-none p-0' }, items.map((item) => li({
-    onpointerdown, onpointerup,
-    ontouchstart: preventDefault,
-  }, item)));
+  let dragTimeout, draggedItem, dragStartY, dragStartScrollTop, virtualList, lastCursorY, scrollAnimation;
+
+  const list = ul({ ...props, class: `overflow-y-auto list-none p-0 ${props.class ?? ''}` },
+    children.map((item) => li({
+      onpointerdown, onpointerup,
+      ontouchstart: preventDefault,
+    }, item)),
+  );
 
   return list;
 
@@ -24,6 +32,7 @@ export default function DragAndDropList({ items, onupdate }) {
       draggedItem.style.zIndex = '1';
       draggedItem.style.opacity = '0.5';
       dragStartY = event.clientY;
+      dragStartScrollTop = list.scrollTop;
       virtualList = [...list.children];
       lastCursorY = dragStartY;
 
@@ -33,32 +42,58 @@ export default function DragAndDropList({ items, onupdate }) {
 
   function handleDrag(event) {
     const cursorY = event.clientY;
-    draggedItem.style.top = `${cursorY - dragStartY}px`;
+    const scrollOffset = list.scrollTop;
+    draggedItem.style.top = `${cursorY - dragStartY + (scrollOffset - dragStartScrollTop)}px`;
 
-    virtualList.forEach((li) => {
-      const liRect = li.getBoundingClientRect();
-      if (li !== draggedItem && cursorY > liRect.top && cursorY < liRect.bottom) {
-        handleDragOver(event, li);
-      }
-    });
+    scrollIfNeeded(cursorY);
+    shiftItemsIfNeeded(cursorY);
 
     lastCursorY = cursorY;
   }
 
-  function handleDragOver(dragEvent, target) {
-    const cursorY = dragEvent.clientY;
-    const targetRect = target.getBoundingClientRect();
-    const targetCenterY = targetRect.top + targetRect.height / 2;
+  function scrollIfNeeded(cursorY) {
+    const listRect = list.getBoundingClientRect();
+    const topBoundary = listRect.top + listRect.height * 0.1;
+    const bottomBoundary = listRect.bottom - listRect.height * 0.1;
+    if (cursorY < topBoundary && lastCursorY > topBoundary) {
+      scroll(-SCROLL_AMOUNT);
+    } else if (cursorY > bottomBoundary && lastCursorY < bottomBoundary) {
+      scroll(SCROLL_AMOUNT);
+    } else if (cursorY > topBoundary && cursorY < bottomBoundary || isScrolledToBottom(list)) {
+      stopScroll();
+    }
+  }
 
+  function scroll(amount) {
+    list.scrollTop += amount;
+    scrollAnimation = requestAnimationFrame(() => scroll(amount));
+  }
+
+  function isScrolledToBottom(element) {
+    return Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 1;
+  }
+
+  function stopScroll() {
+    cancelAnimationFrame(scrollAnimation);
+  }
+
+  function shiftItemsIfNeeded(cursorY) {
+    const scrollOffset = list.scrollTop;
     const draggedIndex = virtualList.indexOf(draggedItem);
-    const targetIndex = virtualList.indexOf(target);
 
-    if (cursorY < targetCenterY && lastCursorY > targetCenterY && draggedIndex > targetIndex) {
-      moveVirtualItem(draggedIndex, targetIndex);
-      translate(target, draggedItem.offsetHeight);
-    } else if (cursorY > targetCenterY && lastCursorY < targetCenterY && draggedIndex < targetIndex) {
-      moveVirtualItem(draggedIndex, targetIndex);
-      translate(target, -draggedItem.offsetHeight);
+    for (let i = 0; i < virtualList.length; i++) {
+      const liRect = virtualList[i].getBoundingClientRect();
+      const liCenterY = liRect.top + liRect.height / 2;
+
+      if (cursorY + scrollOffset < liCenterY + scrollOffset && draggedIndex > i) {
+        moveVirtualItem(draggedIndex, i);
+        virtualList.slice(i + 1, draggedIndex + 1).forEach((li) => translate(li, draggedItem.offsetHeight));
+        return;
+      } else if (cursorY + scrollOffset > liCenterY + scrollOffset && draggedIndex < i) {
+        moveVirtualItem(draggedIndex, i);
+        virtualList.slice(draggedIndex, i).forEach((li) => translate(li, -draggedItem.offsetHeight));
+        return;
+      }
     }
   }
 
@@ -82,6 +117,8 @@ export default function DragAndDropList({ items, onupdate }) {
     }
 
     document.removeEventListener('pointermove', handleDrag);
+
+    stopScroll();
 
     const draggedIndex = virtualList.indexOf(draggedItem);
     const listItems = [...list.children];
