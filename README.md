@@ -3,7 +3,6 @@
 ## next
 
 - chore: prevent re-rendering of images control in skillform
-  - skill form: extract pictures state, to avoid rerendering pictures when typing in inputs
   - avoid rerendering picture list (or scrolling back to the beginning) when a picture is updated
 
 test

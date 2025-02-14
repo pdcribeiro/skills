@@ -6,34 +6,41 @@ import { bind, confirmAnd } from '../utils.js';
 const { button, div, input, label, textarea, img } = van.tags;
 
 export default function SkillForm({ initialData = {}, onsubmit, oncancel }) {
-  const formData = van.state({
+  const { pictures: initialPictures = [], ...initialTextData } = initialData;
+
+  const textData = van.state({
     name: '',
     description: '',
-    pictures: [],
     tags: '',
-    ...initialData,
+    ...initialTextData,
   });
+  const pictures = van.state(initialPictures);
 
   return div(
-    label('name'), input(bind(formData, 'name')),
-    label('description'), textarea({ rows: 12, ...bind(formData, 'description') }),
+    label('name'), input(bind(textData, 'name')),
+    label('description'), textarea({ rows: 12, ...bind(textData, 'description') }),
     label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
-    () => Pictures({ pictures: formData.val.pictures, onupdate: updatePictures }),
-    label('tags'), textarea(bind(formData, 'tags')),
-    button({ onclick: () => onsubmit(formData.val) }, 'save'),
+    () => Pictures({ pictures: pictures.val, onupdate: updatePictures }),
+    label('tags'), textarea(bind(textData, 'tags')),
+    button({ onclick: submit }, 'save'),
     button({ class: 'ml-4', onclick: oncancel }, 'cancel'),
   );
 
   async function loadImages(event) {
-    const pictures = await Promise.all([...event.target.files].map(async (file) => {
+    const newPictures = await Promise.all([...event.target.files].map(async (file) => {
       const url = await getLocalUrl(file)
       return { file, url, description: '', unsaved: true }
     }))
-    updatePictures([...formData.val.pictures, ...pictures]);
+    updatePictures([...pictures.val, ...newPictures]);
   }
 
-  function updatePictures(pictures) {
-    formData.val = { ...formData.val, pictures };
+  function updatePictures(updatedPictures) {
+    pictures.val = updatedPictures;
+  }
+
+  function submit() {
+    console.debug('[skill form] submit event');
+    onsubmit({ ...textData.val, pictures: pictures.val });
   }
 }
 
