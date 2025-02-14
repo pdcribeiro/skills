@@ -109,9 +109,10 @@ export default function DragAndDropList(...args) {
     element.style.transform = `translateY(${actualDisplacement}px)`;
   }
 
-  function onpointerup() {
+  function onpointerup(event) {
     if (dragTimeout) {
       clearTimeout(dragTimeout);
+      event.target.dispatchEvent(new PointerEvent('click', event));
       return;
     }
 
