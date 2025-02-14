@@ -41,12 +41,9 @@ export default function DragAndDropList(...args) {
 
   function handleDrag(event) {
     const cursorY = event.clientY;
-    const scrollOffset = list.scrollTop;
-    draggedItem.style.top = `${cursorY - dragStartY + (scrollOffset - dragStartScrollTop)}px`;
-
     scrollIfNeeded(cursorY);
+    translateDraggedItem(cursorY);
     shiftItemsIfNeeded(cursorY);
-
     lastCursorY = cursorY;
   }
 
@@ -55,17 +52,23 @@ export default function DragAndDropList(...args) {
     const topBoundary = listRect.top + listRect.height * 0.1;
     const bottomBoundary = listRect.bottom - listRect.height * 0.1;
     if (cursorY < topBoundary && lastCursorY > topBoundary) {
-      scroll(-SCROLL_AMOUNT);
+      scroll(-SCROLL_AMOUNT, cursorY);
     } else if (cursorY > bottomBoundary && lastCursorY < bottomBoundary) {
-      scroll(SCROLL_AMOUNT);
+      scroll(SCROLL_AMOUNT, cursorY);
     } else if (cursorY > topBoundary && cursorY < bottomBoundary || isScrolledToBottom(list)) {
       stopScroll();
     }
   }
 
-  function scroll(amount) {
+  function scroll(amount, cursorY) {
     list.scrollTop += amount;
-    scrollAnimation = requestAnimationFrame(() => scroll(amount));
+    translateDraggedItem(cursorY);
+    scrollAnimation = requestAnimationFrame(() => scroll(amount, cursorY));
+  }
+
+  function translateDraggedItem(cursorY) {
+    const scrollOffset = list.scrollTop;
+    draggedItem.style.top = `${cursorY - dragStartY + (scrollOffset - dragStartScrollTop)}px`;
   }
 
   function isScrolledToBottom(element) {
