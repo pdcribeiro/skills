@@ -5,7 +5,7 @@ import { bind, confirmAnd } from '../utils.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
 
-export default function SkillForm({ initialData = {}, cancel, ...props }) {
+export default function SkillForm({ initialData = {}, onsubmit, oncancel }) {
   const formData = van.state({
     name: '',
     description: '',
@@ -18,10 +18,10 @@ export default function SkillForm({ initialData = {}, cancel, ...props }) {
     label('name'), input(bind(formData, 'name')),
     label('description'), textarea({ rows: 12, ...bind(formData, 'description') }),
     label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
-    () => Pictures({ pictures: formData.val.pictures, update: updatePictures }),
+    () => Pictures({ pictures: formData.val.pictures, onupdate: updatePictures }),
     label('tags'), textarea(bind(formData, 'tags')),
-    button({ onclick: submit }, 'save'),
-    button({ class: 'ml-4', onclick: cancel }, 'cancel'),
+    button({ onclick: () => onsubmit(formData.val) }, 'save'),
+    button({ class: 'ml-4', onclick: oncancel }, 'cancel'),
   );
 
   async function loadImages(event) {
@@ -35,14 +35,9 @@ export default function SkillForm({ initialData = {}, cancel, ...props }) {
   function updatePictures(pictures) {
     formData.val = { ...formData.val, pictures };
   }
-
-  function submit(event) {
-    console.debug('[skill form] submit event', event);
-    props.submit(formData.val);
-  }
 }
 
-function Pictures({ pictures, update }) {
+function Pictures({ pictures, onupdate }) {
   const selected = van.state(null);
   const editing = van.state(null);
   return div({ class: 'mb-4' },
@@ -55,7 +50,7 @@ function Pictures({ pictures, update }) {
               div({ class: 'overlay bg-transparent', onclick: unselect }),
               div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
                 div(
-                  button({ onclick: edit }, 'edit'),
+                  button({ onclick: openEditModal }, 'edit'),
                   button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
                 ),
               ),
@@ -63,20 +58,20 @@ function Pictures({ pictures, update }) {
         ),
       )
     ),
-    () => editing.val ? EditModal({ picture: editing.val, update: updatePicture, close: () => editing.val = null }) : div(),
+    () => editing.val ? EditModal({ picture: editing.val, onupdate: updatePicture, onclose: () => editing.val = null }) : div(),
   );
 
   function unselect() {
     selected.val = null;
   }
 
-  function edit() {
+  function openEditModal() {
     editing.val = selected.val;
     unselect();
   }
 
   function confirmAndDelete() {
-    confirmAnd(() => update(pictures.filter((p) => p !== selected.val)))
+    confirmAnd(() => onupdate(pictures.filter((p) => p !== selected.val)))
     unselect();
   }
 
@@ -84,23 +79,23 @@ function Pictures({ pictures, update }) {
     const clone = [...pictures];
     const [movedItem] = clone.splice(originalIndex, 1);
     clone.splice(newIndex, 0, movedItem);
-    update(clone);
+    onupdate(clone);
   }
 
   function updatePicture(picture) {
-    update(pictures.map((p) => (p === editing.val ? picture : p)).filter((p) => !p.deleted));
+    onupdate(pictures.map((p) => (p === editing.val ? picture : p)).filter((p) => !p.deleted));
   }
 }
 
-function EditModal({ update, close, ...props }) {
+function EditModal({ onupdate, onclose, ...props }) {
   const picture = van.state(props.picture);
-  return Modal({ close },
+  return Modal({ onclose },
     () => img({ src: picture.val.url, class: 'block mx-auto mb-4 max-h-screen/2' }),
     input({ type: 'file', onchange: loadImage }),
     textarea({ rows: 5, ...bind(picture, 'description') }),
     button({ onclick: save }, 'save'),
     button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
-    button({ class: 'ml-4', onclick: close }, 'cancel'),
+    button({ class: 'ml-4', onclick: onclose }, 'cancel'),
   );
 
   async function loadImage(event) {
@@ -111,14 +106,14 @@ function EditModal({ update, close, ...props }) {
   }
 
   async function save() {
-    update(picture.val);
-    close();
+    onupdate(picture.val);
+    onclose();
   }
 
   function confirmAndDelete() {
     confirmAnd(() => {
-      update({ ...props.picture, deleted: true });
-      close()
+      onupdate({ ...props.picture, deleted: true });
+      onclose()
     })
   }
 }

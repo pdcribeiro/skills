@@ -16,12 +16,12 @@ export default function SkillEditPage({ param: id }) {
     () => skill.val
       ? div(
         h1(skill.val.name),
-        SkillForm({ initialData: skill.val, submit, cancel: confirmAndCancel }),
+        SkillForm({ initialData: skill.val, onsubmit, oncancel: confirmAndCancel }),
       )
       : p('loading skill data...')
   );
 
-  async function submit(skillData) {
+  async function onsubmit(skillData) {
     const pictures = await Promise.all(
       skillData.pictures.map(async (pic) => {
         if (pic.unsaved) {

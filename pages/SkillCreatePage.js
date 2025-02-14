@@ -11,10 +11,10 @@ const { div, h1 } = van.tags;
 export default function SkillCreatePage() {
   return div(
     h1('new skill'),
-    SkillForm({ submit, cancel: confirmAndCancel }),
+    SkillForm({ onsubmit, oncancel: confirmAndCancel }),
   );
 
-  async function submit(skillData) {
+  async function onsubmit(skillData) {
     const pictures = await Promise.all(
       skillData.pictures.map(async ({ file, description }) => {
         const { id, url } = await images.upload(file);
