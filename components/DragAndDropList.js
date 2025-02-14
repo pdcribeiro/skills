@@ -7,7 +7,6 @@ const SCROLL_AMOUNT = 10;
 const { li, ul } = van.tags;
 
 // note: must set height to allow scroll
-// note: images must have draggable set to false
 export default function DragAndDropList(...args) {
   console.debug('[DragAndDropList] rendering...')
 
@@ -18,7 +17,7 @@ export default function DragAndDropList(...args) {
   const list = ul({ ...props, class: `overflow-y-auto list-none p-0 ${props.class ?? ''}` },
     children.map((item) => li({
       onpointerdown, onpointerup,
-      ontouchstart: preventDefault,
+      ontouchstart: preventDefault, onmousedown: preventDefault, ondragstart: preventDefault,
     }, item)),
   );
 

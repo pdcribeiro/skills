@@ -49,7 +49,7 @@ function Pictures({ pictures, update }) {
     DragAndDropList({ class: 'flex flex-col gap-4 items-center max-h-152', onupdate: handleMove },
       pictures.map((pic) =>
         div({ class: 'relative' },
-          img({ src: pic.url, draggable: false, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
+          img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
           () => pic === selected.val ?
             div(
               div({ class: 'overlay bg-transparent', onclick: unselect }),
